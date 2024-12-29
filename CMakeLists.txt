@@ -5,18 +5,20 @@ project(engine)
 file(GLOB_RECURSE CPP_SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADER_FILES src/*.h)
 
-# Include GLFW as a submodule
+# GLFW
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-
 add_subdirectory(vendor/glfw)
+
+# GLEW
+add_subdirectory(vendor/glew/build/cmake)
 
 # Create the executable
 add_executable(${PROJECT_NAME} src/main.cpp ${CPP_SOURCES} ${HEADER_FILES})
 
-# Link GLFW and other necessary libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+# Link libraries
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glew_s)
 
-# Add include directories for GLFW
-target_include_directories(${PROJECT_NAME} PRIVATE vendor/glfw/include)
+# Add include directories
+target_include_directories(${PROJECT_NAME} PRIVATE vendor/glfw/include vendor/glew/include)

@@ -1,5 +1,7 @@
-#include <GLFW/glfw3.h>
 #include <iostream>
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 int main() {
     // Initialize GLFW
@@ -18,6 +20,15 @@ int main() {
 
     // Make the window's context current
     glfwMakeContextCurrent(window);
+
+    // Initialize GLEW
+    glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK) {
+        std::cerr << "Failed to initialize GLEW" << std::endl;
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return -1;
+    }
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
