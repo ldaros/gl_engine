@@ -6,6 +6,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <imgui.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
+
 #include "file_manager/file_manager.h"
 #include "shader/shader.h"
 #include "camera/camera.h"
@@ -45,6 +49,7 @@ int main()
 
     // Make OpenGL context current
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(1); // Enable vsync
 
     // Initialize GLEW
     glewExperimental = GL_TRUE;
@@ -54,6 +59,15 @@ int main()
         glfwTerminate();
         return -1;
     }
+
+    // Initialize ImGui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 410");
+    bool showGui = true;
 
     glEnable(GL_DEPTH_TEST); // Enable depth testing for 3D rendering
     glEnable(GL_CULL_FACE); // Enable culling
@@ -91,7 +105,15 @@ int main()
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
+        // Pool events
+        glfwPollEvents();
+
         float time = (float)glfwGetTime();
+
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Dark gray background
@@ -115,9 +137,24 @@ int main()
         // Draw mesh
         mesh.draw();
         
-        // Swap buffers and poll events
+        // Show GUI
+        if (showGui)
+        {
+            ImGui::Begin("Controls", &showGui);
+            ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::Dummy(ImVec2(0.0f, 10.0f));
+            auto cameraPosition = camera.getPosition();
+            ImGui::SliderFloat3("Camera Position", &cameraPosition.x, -5.0f, 5.0f);
+            camera.setPosition(cameraPosition);
+            ImGui::End();
+        }
+
+        // Render ImGui
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        // Swap buffers
         glfwSwapBuffers(window);
-        glfwPollEvents();
     }
     
     // Cleanup
@@ -125,4 +162,4 @@ int main()
     glfwTerminate();
 
     return 0;
-}
+}   

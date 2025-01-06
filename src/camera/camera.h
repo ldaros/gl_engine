@@ -10,7 +10,8 @@ public:
     Camera(glm::vec3 position, glm::vec3 direction);
     glm::mat4 getViewMatrix() const;
     glm::mat4 getProjectionMatrix(float fov, float aspectRatio, float near, float far) const;
-    glm::vec3 getPosition() const;
+    glm::vec3 getPosition() const;    
+    void setPosition(glm::vec3 position);
 
 private:
     glm::vec3 position;
