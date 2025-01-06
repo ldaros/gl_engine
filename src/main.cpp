@@ -110,10 +110,6 @@ int main()
 
         float time = (float)glfwGetTime();
 
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Dark gray background
@@ -137,6 +133,11 @@ int main()
         // Draw mesh
         mesh.draw();
         
+        // Start ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
         // Show GUI
         if (showGui)
         {
@@ -158,6 +159,9 @@ int main()
     }
     
     // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     glfwDestroyWindow(window);
     glfwTerminate();
 
