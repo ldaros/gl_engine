@@ -17,11 +17,37 @@ add_subdirectory(vendor/glew/build/cmake)
 # GLM
 add_subdirectory(vendor/glm)
 
+# ImGui
+set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/vendor/imgui)
+
+set(IMGUI_SOURCES
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_tables.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
+)
+
+set(IMGUI_HEADERS
+    ${IMGUI_DIR}/imgui.h
+    ${IMGUI_DIR}/imconfig.h
+    ${IMGUI_DIR}/imgui_internal.h
+    ${IMGUI_DIR}/backends/imgui_impl_glfw.h
+    ${IMGUI_DIR}/backends/imgui_impl_opengl3.h
+)
+
 # Create the executable
-add_executable(${PROJECT_NAME} src/main.cpp ${CPP_SOURCES} ${HEADER_FILES})
+add_executable(${PROJECT_NAME} src/main.cpp ${CPP_SOURCES} ${HEADER_FILES} ${IMGUI_SOURCES})
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw glew_s glm)
 
 # Add include directories
-target_include_directories(${PROJECT_NAME} PRIVATE vendor/glfw/include vendor/glew/include vendor/glm)
+target_include_directories(${PROJECT_NAME} PRIVATE
+    vendor/glfw/include
+    vendor/glew/include
+    vendor/glm
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/backends
+)
