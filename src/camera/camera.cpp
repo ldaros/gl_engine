@@ -18,7 +18,17 @@ glm::vec3 Camera::getPosition() const
     return position;
 }
 
+glm::vec3 Camera::getDirection() const 
+{
+    return direction;
+}
+
 void Camera::setPosition(glm::vec3 position) 
 {
     this->position = position;
+}
+
+void Camera::setDirection(glm::vec3 direction) 
+{
+    this->direction = direction;
 }

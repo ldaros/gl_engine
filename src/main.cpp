@@ -89,7 +89,7 @@ int main()
         std::cerr << "Failed to load OBJ file" << std::endl;
         return -1;
     }
-    Mesh mesh(vertices, indices);
+    Mesh mesh(vertices, indices);   
 
     // Camera and Transform
     Camera camera(glm::vec3(0.f, 0.f, 2.f), glm::vec3(0.f, 0.f, -1.f));
@@ -109,7 +109,6 @@ int main()
         glfwPollEvents();
 
         float time = (float)glfwGetTime();
-
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Dark gray background
@@ -147,6 +146,9 @@ int main()
             auto cameraPosition = camera.getPosition();
             ImGui::SliderFloat3("Camera Position", &cameraPosition.x, -5.0f, 5.0f);
             camera.setPosition(cameraPosition);
+            auto cameraDirection = camera.getDirection();
+            ImGui::SliderFloat3("Camera Direction", &cameraDirection.x, -5.0f, 5.0f);
+            camera.setDirection(cameraDirection);
             ImGui::End();
         }
 
