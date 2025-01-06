@@ -4,7 +4,8 @@
 #include <string>
 #include <vector>
 
-class ObjLoader {
+class ObjLoader 
+{
 public:
     ObjLoader();
     ~ObjLoader();

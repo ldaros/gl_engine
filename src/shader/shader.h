@@ -8,7 +8,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-class Shader {
+class Shader 
+{
 public:
     Shader();
     ~Shader();

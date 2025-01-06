@@ -8,7 +8,8 @@ FileManager::FileManager() {}
 
 FileManager::~FileManager() {}
 
-std::string FileManager::read(const std::string &filename) {
+std::string FileManager::read(const std::string &filename) 
+{
     std::ifstream file;
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 

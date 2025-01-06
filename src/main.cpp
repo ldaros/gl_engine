@@ -13,11 +13,13 @@
 #include "mesh/mesh.h"
 #include "obj_loader/obj_loader.h"
 
-void glfwErrorCallback(int error, const char *description) {
+void glfwErrorCallback(int error, const char *description)
+{
     std::cerr << "GLFW Error " << error << ": " << description << std::endl;
 }
 
-int main() {
+int main()
+{
     // Initialize GLFW
     if (!glfwInit())
     {
@@ -68,7 +70,8 @@ int main() {
     // Load OBJ file
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
-    if (!ObjLoader::loadOBJ("../assets/pyramid.obj", vertices, indices)) {
+    if (!ObjLoader::loadOBJ("../assets/pyramid.obj", vertices, indices))
+    {
         std::cerr << "Failed to load OBJ file" << std::endl;
         return -1;
     }

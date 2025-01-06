@@ -6,7 +6,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-class Transform {
+class Transform 
+{
 public:
     Transform();
     glm::mat4 getModelMatrix() const;

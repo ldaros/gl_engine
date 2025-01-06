@@ -2,7 +2,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 Mesh::Mesh(std::vector<float>& vertices, std::vector<unsigned int>& indices) 
-    : indexCount(indices.size()) {
+    : indexCount(indices.size()) 
+{
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
     glGenBuffers(1, &ebo);
@@ -18,13 +19,15 @@ Mesh::Mesh(std::vector<float>& vertices, std::vector<unsigned int>& indices)
     setupMesh();
 }
 
-Mesh::~Mesh() {
+Mesh::~Mesh() 
+{
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &ebo);
 }
 
-void Mesh::setupMesh() {
+void Mesh::setupMesh() 
+{
     // Position
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -36,7 +39,8 @@ void Mesh::setupMesh() {
     glBindVertexArray(0);
 }
 
-void Mesh::draw() {
+void Mesh::draw() 
+{
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);

@@ -4,7 +4,8 @@
 #include <vector>
 #include <GL/glew.h>
 
-class Mesh {
+class Mesh 
+{
     unsigned int indexCount;
 public:
     Mesh(std::vector<float>& vertices, std::vector<unsigned int>& indices);
