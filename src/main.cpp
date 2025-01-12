@@ -18,18 +18,13 @@
 #include "texture/texture.h"
 #include "transform/transform.h"
 
+#define GLCheckError() \
+    { GLenum err; while((err = glGetError()) != GL_NO_ERROR) \
+    std::cerr << "OpenGL error: " << err << " at line " << __LINE__ << std::endl; }
+
 void glfwErrorCallback(int error, const char *description)
 {
     std::cerr << "GLFW Error " << error << ": " << description << std::endl;
-}
-
-void checkOpenGLError(const std::string &message)
-{
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR)
-    {
-        std::cerr << message << " OpenGL error: " << error << std::endl;
-    }
 }
 
 void openGLDebugCallback(
@@ -85,7 +80,7 @@ int main()
         glfwTerminate();
         return -1;
     }
-    checkOpenGLError("After GLEW initialization"); // Check for OpenGL errors
+    GLCheckError();
 
     // Initialize ImGui
     IMGUI_CHECKVERSION();
@@ -94,8 +89,8 @@ int main()
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 410");
-    checkOpenGLError("After ImGui initialization");
     bool showGui = true;
+    GLCheckError();
 
     glEnable(GL_DEBUG_OUTPUT); // Enable debug output for OpenGL errors
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // Enable synchronous debug output
@@ -111,7 +106,7 @@ int main()
     );
     GLuint shaderProgram = shader.m_id;
     glUseProgram(shaderProgram);
-    checkOpenGLError("After shader initialization");
+    GLCheckError();
 
     // Load OBJ file
     std::vector<float> vertices; // 3 floats per vertex (x, y, z)
@@ -170,7 +165,7 @@ int main()
 
         // Draw mesh
         mesh.draw(shaderProgram, textureID);
-        checkOpenGLError("After mesh drawing");
+        GLCheckError();
         
         // Start ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
