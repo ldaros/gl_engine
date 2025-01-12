@@ -10,6 +10,7 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
+#include "core/input.h"
 #include "core/file_system.h"
 #include "core/obj_loader.h"
 #include "renderer/shader.h"
@@ -72,6 +73,9 @@ int main()
     // Make OpenGL context current
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
+
+    // Initialize input
+    Input::init(window);
 
     // Initialize GLEW
     glewExperimental = GL_TRUE;
@@ -140,11 +144,12 @@ int main()
     bool firstMouse = true;
     bool isRightMouseButtonPressed = false;
 
-    float deltaTime = 0.0f; // Time between current frame and last frame
-    float lastFrameTime = 0.0f; // Time of the last frame
-
+    // Wireframe mode
     bool wireframeTogglePressed = false;
     bool wireframe = false;
+
+    float deltaTime = 0.0f; // Time between current frame and last frame
+    float lastFrameTime = 0.0f; // Time of the last frame
 
     // Main loop
     while (!glfwWindowShouldClose(window))
@@ -162,27 +167,27 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Dark gray background
 
         // Toggle wireframe mode
-        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS && !wireframeTogglePressed) {
+        if (Input::isKeyDown(Key::F) && !wireframeTogglePressed) {
             wireframe = !wireframe;
             glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
             wireframeTogglePressed = true;
-        } else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE) {
+        } else if (Input::isKeyReleased(Key::F)) {
             wireframeTogglePressed = false;
         }
 
         // Check if the right mouse button is pressed or released
-        bool rightMouseButtonCurrentlyPressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+        bool rightMouseButtonCurrentlyPressed = Input::isMouseDown(Mouse::BUTTON_RIGHT);
         if (rightMouseButtonCurrentlyPressed && !isRightMouseButtonPressed)
         {
             // Right mouse button pressed - enable camera movement and hide cursor
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            Input::disableCursor();
             isRightMouseButtonPressed = true;
             firstMouse = true; // Reset mouse handling
         }
         else if (!rightMouseButtonCurrentlyPressed && isRightMouseButtonPressed)
         {
             // Right mouse button released - disable camera movement and show cursor
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            Input::enableCursor();
             isRightMouseButtonPressed = false;
         }
 
@@ -190,31 +195,30 @@ int main()
         if (isRightMouseButtonPressed)
         {
             // Handle keyboard inputs to move the camera
-            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+            if (Input::isKeyDown(Key::W)) {
                 camera.processKeyboard(FORWARD, deltaTime);
             }
-            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+            if (Input::isKeyDown(Key::S)) {
                 camera.processKeyboard(BACKWARD, deltaTime);
             }
-            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+            if (Input::isKeyDown(Key::D)) {
                 camera.processKeyboard(RIGHT, deltaTime);
             }
-            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+            if (Input::isKeyDown(Key::A)) {
                 camera.processKeyboard(LEFT, deltaTime);
             }
 
             // Handle mouse movement
-            double mouseX, mouseY;
-            glfwGetCursorPos(window, &mouseX, &mouseY);
+            auto mousePosition = Input::getMousePosition();
             if (firstMouse) {
-                lastMouseX = mouseX;
-                lastMouseY = mouseY;
+                lastMouseX = mousePosition.x;
+                lastMouseY = mousePosition.y;
                 firstMouse = false;
             }
-            float xOffset = mouseX - lastMouseX;
-            float yOffset = lastMouseY - mouseY;
-            lastMouseX = mouseX;
-            lastMouseY = mouseY;
+            float xOffset = mousePosition.x - lastMouseX;
+            float yOffset = lastMouseY - mousePosition.y;
+            lastMouseX = mousePosition.x;
+            lastMouseY = mousePosition.y;
             camera.processMouseMovement(xOffset, yOffset);
         }
 
@@ -238,10 +242,12 @@ int main()
 
         // Show GUI
         if (showGui)
-        {
+        {   
+            // set position of the window
+            ImGui::SetNextWindowPos(ImVec2(20.0f, 20.0f));
             ImGui::SetNextWindowBgAlpha(0.5f); // Set background transparency
             ImGui::Begin(
-                "Controls", 
+                "Overlay", 
                 &showGui, 
                 ImGuiWindowFlags_AlwaysAutoResize | 
                 ImGuiWindowFlags_NoTitleBar | 
