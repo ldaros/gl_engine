@@ -3,11 +3,11 @@
 
 #include <string>
 
-class FileManager 
+class FileSystem 
 {
 public:
-    FileManager();
-    ~FileManager();
+    FileSystem();
+    ~FileSystem();
 
     static std::string read(const std::string &filename);
 };

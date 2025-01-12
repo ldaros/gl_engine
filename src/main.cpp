@@ -10,13 +10,13 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
-#include "file_manager/file_manager.h"
-#include "shader/shader.h"
-#include "camera/camera.h"
-#include "mesh/mesh.h"
-#include "obj_loader/obj_loader.h"
-#include "texture/texture.h"
-#include "transform/transform.h"
+#include "core/file_system.h"
+#include "core/obj_loader.h"
+#include "core/transform.h"
+#include "renderer/shader.h"
+#include "renderer/camera.h"
+#include "renderer/mesh.h"
+#include "renderer/texture.h"
 
 #define GLCheckError() \
     { GLenum err; while((err = glGetError()) != GL_NO_ERROR) \
@@ -56,8 +56,10 @@ int main()
     glfwSetErrorCallback(glfwErrorCallback);
 
     // Set OpenGL version and profile
+    glfwWindowHint(GLFW_SAMPLES, 4); // 4x MSAA
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // OpenGL 4.1
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1); // OpenGL 4.1
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create window
@@ -101,8 +103,8 @@ int main()
     // Initialize shader
     Shader shader;
     shader.init(
-        FileManager::read("../src/shaders/vertex_shader.glsl"),  // Vertex shader source
-        FileManager::read("../src/shaders/fragment_shader.glsl") // Fragment shader source
+        FileSystem::read("../resources/vertex_shader.glsl"),  // Vertex shader source
+        FileSystem::read("../resources/fragment_shader.glsl") // Fragment shader source
     );
     GLuint shaderProgram = shader.m_id;
     glUseProgram(shaderProgram);
@@ -111,7 +113,7 @@ int main()
     // Load OBJ file
     std::vector<float> vertices; // 3 floats per vertex (x, y, z)
     std::vector<float> texCoords; // 2 floats per vertex (u, v)
-    if (!ObjLoader::loadOBJ("../assets/pyramid.obj", vertices, texCoords))
+    if (!ObjLoader::loadOBJ("../resources/pyramid.obj", vertices, texCoords))
     {
         std::cerr << "Failed to load OBJ file" << std::endl;
         return -1;
@@ -123,7 +125,7 @@ int main()
     Mesh mesh(vertices, texCoords);
 
     // Load texture
-    Texture texture("../assets/texture.DDS");
+    Texture texture("../resources/texture.DDS");
     GLuint textureID = texture.getID();
     
     // Camera and Transform
