@@ -10,7 +10,9 @@ public:
     ObjLoader();
     ~ObjLoader();
 
-    static bool loadOBJ(const std::string &path, std::vector<float> &vertices, std::vector<unsigned int> &indices);
+    static bool loadOBJ(
+        const std::string &path, std::vector<float> &vertices, std::vector<float> &texCoords
+    );
 };
 
 #endif // OBJ_LOADER_H

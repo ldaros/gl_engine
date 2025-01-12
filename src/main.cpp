@@ -13,13 +13,39 @@
 #include "file_manager/file_manager.h"
 #include "shader/shader.h"
 #include "camera/camera.h"
-#include "transform/transform.h"
 #include "mesh/mesh.h"
 #include "obj_loader/obj_loader.h"
+#include "texture/texture.h"
+#include "transform/transform.h"
 
 void glfwErrorCallback(int error, const char *description)
 {
     std::cerr << "GLFW Error " << error << ": " << description << std::endl;
+}
+
+void checkOpenGLError(const std::string &message)
+{
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR)
+    {
+        std::cerr << message << " OpenGL error: " << error << std::endl;
+    }
+}
+
+void openGLDebugCallback(
+    GLenum source, 
+    GLenum type, 
+    GLuint id, 
+    GLenum severity, 
+    GLsizei length, 
+    const GLchar* message,
+    const void* userParam
+)
+{
+    if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM)
+    {
+        std::cerr << "OpenGL Debug: " << message << std::endl;
+    }
 }
 
 int main()
@@ -59,6 +85,7 @@ int main()
         glfwTerminate();
         return -1;
     }
+    checkOpenGLError("After GLEW initialization"); // Check for OpenGL errors
 
     // Initialize ImGui
     IMGUI_CHECKVERSION();
@@ -67,12 +94,14 @@ int main()
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 410");
+    checkOpenGLError("After ImGui initialization");
     bool showGui = true;
 
+    glEnable(GL_DEBUG_OUTPUT); // Enable debug output for OpenGL errors
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // Enable synchronous debug output
+    glDebugMessageCallback(openGLDebugCallback, nullptr); // Set the debug callback
     glEnable(GL_DEPTH_TEST); // Enable depth testing for 3D rendering
-    glEnable(GL_CULL_FACE); // Enable culling
-    glCullFace(GL_BACK);    // Cull back faces
-    glFrontFace(GL_CCW);    // Counterclockwise faces are treated as front
+    glDepthFunc(GL_LESS);    // Depth test passes when the new depth value is less than the stored value
 
     // Initialize shader
     Shader shader;
@@ -80,24 +109,35 @@ int main()
         FileManager::read("../src/shaders/vertex_shader.glsl"),  // Vertex shader source
         FileManager::read("../src/shaders/fragment_shader.glsl") // Fragment shader source
     );
+    GLuint shaderProgram = shader.m_id;
+    glUseProgram(shaderProgram);
+    checkOpenGLError("After shader initialization");
 
     // Load OBJ file
-    std::vector<float> vertices;
-    std::vector<unsigned int> indices;
-    if (!ObjLoader::loadOBJ("../assets/pyramid.obj", vertices, indices))
+    std::vector<float> vertices; // 3 floats per vertex (x, y, z)
+    std::vector<float> texCoords; // 2 floats per vertex (u, v)
+    if (!ObjLoader::loadOBJ("../assets/pyramid.obj", vertices, texCoords))
     {
         std::cerr << "Failed to load OBJ file" << std::endl;
         return -1;
     }
-    Mesh mesh(vertices, indices);   
+    std::cout << "Vertices: " << vertices.size() << std::endl;
+    std::cout << "Texture coordinates: " << texCoords.size() << std::endl;
 
+    // Create mesh
+    Mesh mesh(vertices, texCoords);
+
+    // Load texture
+    Texture texture("../assets/texture.DDS");
+    GLuint textureID = texture.getID();
+    
     // Camera and Transform
     Camera camera(glm::vec3(0.f, 0.f, 2.f), glm::vec3(0.f, 0.f, -1.f));
     Transform transform;
-    
+
     // Calculate the center of the mesh
     glm::vec3 meshCenter = transform.calculateCenter(vertices);
-
+    
     // Get screen dimensions
     int screenWidth, screenHeight;
     glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
@@ -124,13 +164,13 @@ int main()
         transform.translate(meshCenter); // Move back to original position
 
         // Use the shader
-        shader.use();
-        shader.setMat4("u_model", transform.getModelMatrix());
-        shader.setMat4("u_view", view);
-        shader.setMat4("u_projection", projection);
+        shader.setMat4("model", transform.getModelMatrix());
+        shader.setMat4("view", view);
+        shader.setMat4("projection", projection);
 
         // Draw mesh
-        mesh.draw();
+        mesh.draw(shaderProgram, textureID);
+        checkOpenGLError("After mesh drawing");
         
         // Start ImGui frame
         ImGui_ImplOpenGL3_NewFrame();

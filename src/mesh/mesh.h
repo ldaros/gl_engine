@@ -8,12 +8,12 @@ class Mesh
 {
     unsigned int indexCount;
 public:
-    Mesh(std::vector<float>& vertices, std::vector<unsigned int>& indices);
+    Mesh(std::vector<float>& vertices, std::vector<float>& texCoords);
     ~Mesh();
-    void draw();
-
+    void draw(GLuint shaderProgram, GLuint textureID);
+    
 private:
-    unsigned int vao, vbo, ebo;
+    unsigned int vao, vbo, tbo;
     void setupMesh();
 };
 
