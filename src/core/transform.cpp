@@ -17,6 +17,11 @@ void Transform::translate(glm::vec3 translation)
     modelMatrix = glm::translate(modelMatrix, translation);
 }
 
+void Transform::scale(glm::vec3 scale)
+{
+    modelMatrix = glm::scale(modelMatrix, scale);
+}
+
 void Transform::reset()
 {
     modelMatrix = glm::mat4(1.0f);
