@@ -133,14 +133,9 @@ int main()
     Texture texture("../resources/texture.DDS");
     GLuint textureID = texture.getID();
     
-    // Get screen dimensions
-    int screenWidth, screenHeight;
-    glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
-
     // Camera setup
     Camera camera(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
-    float lastMouseX = screenWidth / 2.0f;
-    float lastMouseY = screenHeight / 2.0f;
+    float lastMouseX, lastMouseY;
     bool firstMouse = true;
     bool isRightMouseButtonPressed = false;
 
@@ -159,6 +154,11 @@ int main()
         deltaTime = currentFrameTime - lastFrameTime;
         lastFrameTime = currentFrameTime;
 
+        // Resize the viewport
+        int screenWidth, screenHeight;
+        glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
+        glViewport(0, 0, screenWidth, screenHeight);
+        
         // Pool events
         glfwPollEvents();
 
@@ -223,10 +223,15 @@ int main()
         }
 
         // Setup matrices
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 4.0f / 3.0f, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(
+            glm::radians(camera.Zoom), 
+            float(screenWidth) / float(screenHeight),
+            0.1f, 
+            100.0f
+        );
         glm::mat4 view = camera.getViewMatrix();
 
-        // Use the shader
+        // Set shader uniforms
         shader.setMat4("model", glm::mat4(1.0f));
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
