@@ -4,12 +4,15 @@ Shader::Shader() {}
 
 Shader::~Shader() {}
 
-void Shader::init(const std::string &vertexCode, const std::string &fragmentCode) 
+bool Shader::init(const std::string &vertexCode, const std::string &fragmentCode) 
 {
     m_vertexCode = vertexCode;
     m_fragmentCode = fragmentCode;
-    compile();
+    if (!compile()) {
+        return false;
+    }
     link();
+    return true;
 }
 
 void Shader::setBool(const std::string &name, bool value) const 
@@ -70,19 +73,25 @@ void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const {
     glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::compile() 
+bool Shader::compile() 
 {
     const char *vsCode = m_vertexCode.c_str();
     m_vertexId = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(m_vertexId, 1, &vsCode, NULL);
     glCompileShader(m_vertexId);
-    checkCompileError(m_vertexId, "Vertex Shader");
+    if (!checkCompileError(m_vertexId, "Vertex Shader")) {
+        return false;
+    }
 
     const char *fsCode = m_fragmentCode.c_str();
     m_fragmentId = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(m_fragmentId, 1, &fsCode, NULL);
     glCompileShader(m_fragmentId);
-    checkCompileError(m_fragmentId, "Fragment Shader");
+    if (!checkCompileError(m_fragmentId, "Fragment Shader")) {
+        return false;
+    }
+
+    return true;
 }
 
 void Shader::link() 
@@ -96,7 +105,7 @@ void Shader::link()
     glDeleteShader(m_fragmentId);
 }
 
-void Shader::checkCompileError(unsigned int shader, const std::string type) 
+bool Shader::checkCompileError(unsigned int shader, const std::string type) 
 {
     int success;
     char infoLog[1024];
@@ -106,7 +115,10 @@ void Shader::checkCompileError(unsigned int shader, const std::string type)
         std::cout << "Shader: Error compiling " << type << ":" << std::endl
                   << infoLog
                   << std::endl;
+
+        return false;
     }
+    return true;
 }
 
 void Shader::checkLinkingError() 

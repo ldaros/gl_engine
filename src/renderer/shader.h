@@ -16,7 +16,7 @@ public:
 
     unsigned int m_id;
 
-    void init(const std::string &vertexCode, const std::string &fragmentCode);
+    bool init(const std::string &vertexCode, const std::string &fragmentCode);
 
     void setBool(const std::string &name, bool value) const;
     void setInt(const std::string &name, int value) const;
@@ -38,10 +38,10 @@ private:
     std::string m_vertexCode;
     std::string m_fragmentCode;
 
-    void compile();
+    bool compile();
     void link();
 
-    void checkCompileError(unsigned int shader, const std::string type);
+    bool checkCompileError(unsigned int shader, const std::string type);
     void checkLinkingError();
 };
 
