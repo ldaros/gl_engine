@@ -1,22 +1,27 @@
 #include "mesh.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-Mesh::Mesh(std::vector<float>& vertices, std::vector<float>& texCoords)
-    : indexCount(vertices.size() / 3) // Assuming each vertex has 3 position floats (total 3 per vertex)
+Mesh::Mesh(std::vector<glm::vec3> &vertices, std::vector<glm::vec2> &UVs, std::vector<glm::vec3> &normals)
+    : indexCount(vertices.size())
 {
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
     glGenBuffers(1, &tbo);
+    glGenBuffers(1, &nbo);
 
     glBindVertexArray(vao);
 
     // Vertex buffer setup
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 
     // Texture coordinate buffer setup
     glBindBuffer(GL_ARRAY_BUFFER, tbo);
-    glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float), texCoords.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, UVs.size() * sizeof(glm::vec2), &UVs[0], GL_STATIC_DRAW);
+
+    // Normal buffer setup
+    glBindBuffer(GL_ARRAY_BUFFER, nbo);
+    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
 
     setupMesh();
 }
@@ -41,6 +46,11 @@ void Mesh::setupMesh()
     glBindBuffer(GL_ARRAY_BUFFER, tbo);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glEnableVertexAttribArray(1);
+
+    // Normal buffer setup
+    glBindBuffer(GL_ARRAY_BUFFER, nbo);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
 }

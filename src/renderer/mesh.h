@@ -3,17 +3,18 @@
 
 #include <vector>
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 
 class Mesh 
 {
     unsigned int indexCount;
 public:
-    Mesh(std::vector<float>& vertices, std::vector<float>& texCoords);
+    Mesh(std::vector<glm::vec3> &vertices, std::vector<glm::vec2> &UVs, std::vector<glm::vec3> &normals);
     ~Mesh();
     void draw(GLuint shaderProgram, GLuint textureID);
     
 private:
-    unsigned int vao, vbo, tbo;
+    unsigned int vao, vbo, tbo, nbo;
     void setupMesh();
 };
 
