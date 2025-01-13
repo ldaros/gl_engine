@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
@@ -108,8 +109,8 @@ int main()
     // Initialize shader
     Shader shader;
     bool success = shader.init(
-        FileSystem::read("../resources/vertex_shader.glsl"),  // Vertex shader source
-        FileSystem::read("../resources/fragment_shader.glsl") // Fragment shader source
+        FileSystem::read("../resources/standard_vs.glsl"),  // Vertex shader source
+        FileSystem::read("../resources/standard_fs.glsl") // Fragment shader source
     );
     if (!success) {
         std::cerr << "Failed to initialize shader" << std::endl;
@@ -232,6 +233,10 @@ int main()
             camera.processMouseMovement(xOffset, yOffset);
         }
 
+        // scale mesh down
+        transform.reset();
+        transform.scale(glm::vec3(0.1f));
+
         // Setup matrices
         glm::mat4 projection = glm::perspective(
             glm::radians(camera.Zoom), 
@@ -239,18 +244,18 @@ int main()
             0.1f, 
             100.0f
         );
-        glm::mat4 view = camera.getViewMatrix();
-
-
-        // scale mesh down
-        transform.reset();
-        transform.scale(glm::vec3(0.1f));
+        glm::mat4 viewMatrix = camera.getViewMatrix();
+        glm::mat4 modelMatrix = transform.getModelMatrix();
+        glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(viewMatrix * modelMatrix)));
 
         // Set shader uniforms
-        shader.setMat4("model", transform.getModelMatrix());
-        shader.setMat4("view", view);
-        shader.setMat4("projection", projection);
-
+        shader.setMat4("modelViewProjection", projection * viewMatrix * modelMatrix);
+        shader.setMat4("viewMatrix", viewMatrix);
+        shader.setMat4("modelMatrix", modelMatrix);
+        shader.setMat3("normalMatrix", normalMatrix);
+        shader.setVec3("lightPosition", camera.Position);
+        shader.setFloat("lightPower", 15.0f);
+    
         // Draw mesh
         mesh.draw(shaderProgram, textureID);
         GLCheckError();
