@@ -15,9 +15,7 @@ public:
     void translate(glm::vec3 translation);
     void scale(glm::vec3 scale);
     void reset();
-    glm::vec3 calculateCenter(std::vector<float>& vertices);
     
-
 private:
     glm::mat4 modelMatrix;
 };
