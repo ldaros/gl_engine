@@ -13,6 +13,7 @@
 #include "core/input.h"
 #include "core/file_system.h"
 #include "core/obj_loader.h"
+#include "core/transform.h"
 #include "renderer/shader.h"
 #include "renderer/camera.h"
 #include "renderer/mesh.h"
@@ -102,36 +103,45 @@ int main()
     glDebugMessageCallback(openGLDebugCallback, nullptr); // Set the debug callback
     glEnable(GL_DEPTH_TEST); // Enable depth testing for 3D rendering
     glDepthFunc(GL_LESS);    // Depth test passes when the new depth value is less than the stored value
-    // Culling is diabled right now due to obj loader not working properly
-    // glEnable(GL_CULL_FACE); // Enable face culling
+    glEnable(GL_CULL_FACE); // Enable face culling
 
     // Initialize shader
     Shader shader;
-    shader.init(
+    bool success = shader.init(
         FileSystem::read("../resources/vertex_shader.glsl"),  // Vertex shader source
         FileSystem::read("../resources/fragment_shader.glsl") // Fragment shader source
     );
+    if (!success) {
+        std::cerr << "Failed to initialize shader" << std::endl;
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return -1;
+    }
     GLuint shaderProgram = shader.m_id;
     glUseProgram(shaderProgram);
     GLCheckError();
 
     // Load OBJ file
-    std::vector<float> vertices; // 3 floats per vertex (x, y, z)
-    std::vector<float> texCoords; // 2 floats per vertex (u, v)
-    if (!ObjLoader::loadOBJ("../resources/pyramid.obj", vertices, texCoords))
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec2> UVs;
+    std::vector<glm::vec3> normals;
+    if (!ObjLoader::loadOBJ("../resources/teapot.obj", vertices, UVs, normals))
     {
         std::cerr << "Failed to load OBJ file" << std::endl;
         return -1;
     }
     std::cout << "Vertices: " << vertices.size() << std::endl;
-    std::cout << "Texture coordinates: " << texCoords.size() << std::endl;
+    std::cout << "UVs: " << UVs.size() << std::endl;
+    std::cout << "Normals: " << normals.size() << std::endl;
 
     // Create mesh
-    Mesh mesh(vertices, texCoords);
-
+    Mesh mesh(vertices, UVs, normals);
+    
     // Load texture
-    Texture texture("../resources/texture.DDS");
+    Texture texture("../resources/default.DDS");
     GLuint textureID = texture.getID();
+
+    Transform transform;
     
     // Camera setup
     Camera camera(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
@@ -231,8 +241,13 @@ int main()
         );
         glm::mat4 view = camera.getViewMatrix();
 
+
+        // scale mesh down
+        transform.reset();
+        transform.scale(glm::vec3(0.1f));
+
         // Set shader uniforms
-        shader.setMat4("model", glm::mat4(1.0f));
+        shader.setMat4("model", transform.getModelMatrix());
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
 
