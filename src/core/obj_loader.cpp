@@ -12,82 +12,77 @@ ObjLoader::ObjLoader() {}
 
 ObjLoader::~ObjLoader() {}
 
-bool ObjLoader::loadOBJ(const std::string &path, std::vector<float> &vertices, std::vector<float> &texCoords)
+bool ObjLoader::loadOBJ(
+    const std::string &path, 
+    std::vector<glm::vec3> &outVertices,
+    std::vector<glm::vec2> &outUVs,
+    std::vector<glm::vec3> &outNormals
+)
 {
+    std::cout << "Loading OBJ file: " << path << "...\n";
+
+    // Temporary storage for parsing
+    std::vector<glm::vec3> tempVertices;
+    std::vector<glm::vec2> tempUvs;
+    std::vector<glm::vec3> tempNormals;
+
+    std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
+
+    // Open the file
     std::ifstream file(path);
-    if (!file.is_open()) 
-    {
-        std::cerr << "Failed to open OBJ file: " << path << std::endl;
+    if (!file.is_open()) {
+        std::cerr << "Error: Unable to open the file. Please check the path: " << path << "\n";
         return false;
     }
-    
-    std::vector<glm::vec3> tempVertices;
-    std::vector<glm::vec2> tempTexCoords;
 
+    // Parse the file
     std::string line;
-    while (std::getline(file, line)) 
-    {
-        std::istringstream s(line);
+    while (std::getline(file, line)) {
+        std::istringstream lineStream(line);
         std::string prefix;
-        s >> prefix;
+        lineStream >> prefix;
 
-        // Vertex position
-        if (prefix == "v") 
-        {
+        if (prefix == "v") {
+            // Vertex position
             glm::vec3 vertex;
-            s >> vertex.x >> vertex.y >> vertex.z;
+            lineStream >> vertex.x >> vertex.y >> vertex.z;
             tempVertices.push_back(vertex);
-        }
-        // Vertex texture coordinate
-        else if (prefix == "vt") 
-        {
-            glm::vec2 texCoord;
-            s >> texCoord.x >> texCoord.y;
-            texCoord.y = 1.0f - texCoord.y; // Flip V-coordinate
-            tempTexCoords.push_back(texCoord);
-        } 
-        // Face
-        else if (prefix == "f") 
-        {
-            std::string vertexData;
-
-            // Read vertex data for each face element
-            while (s >> vertexData) 
-            {
-                // Replace '/' with spaces so we can extract indices
-                std::replace(vertexData.begin(), vertexData.end(), '/', ' ');
-                std::istringstream vertexStream(vertexData);
-
-                unsigned int vIndex, tIndex = 0;
-
-                vertexStream >> vIndex;
-                
-                // Handle optional texture
-                if (vertexStream.peek() == ' ') vertexStream >> tIndex; // Read texture index if available
-
-                // Convert OBJ 1-based index to 0-based index
-                vIndex--;  // Convert to 0-based index
-                if (tIndex > 0) tIndex--;  // Convert to 0-based index if texture exists
-
-                // Add vertex position to vertices list
-                vertices.push_back(tempVertices[vIndex].x);
-                vertices.push_back(tempVertices[vIndex].y);
-                vertices.push_back(tempVertices[vIndex].z);
-
-                // Add texture coordinate to texture coordinates list
-                if (tIndex > 0)
-                {
-                    texCoords.push_back(tempTexCoords[tIndex - 1].x);
-                    texCoords.push_back(tempTexCoords[tIndex - 1].y);
-                }
-                else
-                {
-                    texCoords.push_back(0.0f);
-                    texCoords.push_back(0.0f);
-                }
+        } else if (prefix == "vt") {
+            // Texture coordinate
+            glm::vec2 uv;
+            lineStream >> uv.x >> uv.y;
+            uv.y = -uv.y; // Invert V coordinate for DDS textures
+            tempUvs.push_back(uv);
+        } else if (prefix == "vn") {
+            // Normal vector
+            glm::vec3 normal;
+            lineStream >> normal.x >> normal.y >> normal.z;
+            tempNormals.push_back(normal);
+        } else if (prefix == "f") {
+            // Face
+            unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
+            char slash; // To handle the '/' in the face definitions
+            for (int i = 0; i < 3; ++i) {
+                lineStream >> vertexIndex[i] >> slash >> uvIndex[i] >> slash >> normalIndex[i];
             }
+            vertexIndices.insert(vertexIndices.end(), { vertexIndex[0], vertexIndex[1], vertexIndex[2] });
+            uvIndices.insert(uvIndices.end(), { uvIndex[0], uvIndex[1], uvIndex[2] });
+            normalIndices.insert(normalIndices.end(), { normalIndex[0], normalIndex[1], normalIndex[2] });
+        } else {
+            // Skip other lines (comments, empty lines, etc.)
+            continue;
         }
     }
 
+    file.close();
+    
+    // Populate output vectors
+    for (size_t i = 0; i < vertexIndices.size(); ++i) {
+        outVertices.push_back(tempVertices[vertexIndices[i] - 1]);
+        outUVs.push_back(tempUvs[uvIndices[i] - 1]);
+        outNormals.push_back(tempNormals[normalIndices[i] - 1]);
+    }
+
+    std::cout << "Successfully loaded OBJ file.\n";
     return true;
 }
