@@ -11,7 +11,9 @@ bool Shader::init(const std::string &vertexCode, const std::string &fragmentCode
     if (!compile()) {
         return false;
     }
-    link();
+    if (!link()) {
+        return false;
+    }
     return true;
 }
 
@@ -94,15 +96,20 @@ bool Shader::compile()
     return true;
 }
 
-void Shader::link() 
+bool Shader::link() 
 {
     m_id = glCreateProgram();
     glAttachShader(m_id, m_vertexId);
     glAttachShader(m_id, m_fragmentId);
     glLinkProgram(m_id);
-    checkLinkingError();
+    if (!checkLinkingError()) {
+        return false;
+    }
+
     glDeleteShader(m_vertexId);
     glDeleteShader(m_fragmentId);
+
+    return true;
 }
 
 bool Shader::checkCompileError(unsigned int shader, const std::string type) 
@@ -121,7 +128,7 @@ bool Shader::checkCompileError(unsigned int shader, const std::string type)
     return true;
 }
 
-void Shader::checkLinkingError() 
+bool Shader::checkLinkingError() 
 {
     int success;
     char infoLog[1024];
@@ -131,5 +138,7 @@ void Shader::checkLinkingError()
         std::cout << "Shader: Error linking shader program: " << std::endl
                   << infoLog
                   << std::endl;
+        return false;
     }
+    return success;
 }

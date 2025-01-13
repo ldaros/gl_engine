@@ -39,10 +39,10 @@ private:
     std::string m_fragmentCode;
 
     bool compile();
-    void link();
+    bool link();
 
     bool checkCompileError(unsigned int shader, const std::string type);
-    void checkLinkingError();
+    bool checkLinkingError();
 };
 
 #endif // SHADER_H
