@@ -13,19 +13,21 @@ public:
         const std::vector<glm::vec3> &vertices, 
         const std::vector<glm::vec2> &UVs, 
         const std::vector<glm::vec3> &normals, 
-        const std::vector<unsigned int> &indices
+        const std::vector<unsigned int> &indices,
+        const std::vector<glm::vec3> &tangents,
+        const std::vector<glm::vec3> &bitangents
     );
     ~Mesh();
 
     // Render the mesh
-    void draw(GLuint shaderProgram, GLuint textureID);
+    void draw(GLuint shaderProgram, GLuint textureID, GLuint normalMapID = 0);
 
     unsigned int getIndexCount() const;
     unsigned int getVertexCount() const;
 
 private:
     // Mesh Data
-    GLuint vao, vbo, tbo, nbo, ebo;
+    GLuint vao, vbo, tbo, nbo, tanbo, bitanbo, ebo;
     unsigned int indexCount;
     unsigned int vertexCount;
 

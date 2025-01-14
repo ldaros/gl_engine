@@ -7,7 +7,9 @@ Mesh::Mesh(
     const std::vector<glm::vec3> &vertices, 
     const std::vector<glm::vec2> &UVs, 
     const std::vector<glm::vec3> &normals, 
-    const std::vector<unsigned int> &indices
+    const std::vector<unsigned int> &indices,
+    const std::vector<glm::vec3> &tangents,
+    const std::vector<glm::vec3> &bitangents
 )
     : indexCount(indices.size()), vertexCount(vertices.size())
 {
@@ -16,6 +18,8 @@ Mesh::Mesh(
     glGenBuffers(1, &vbo);  // Vertex positions
     glGenBuffers(1, &tbo);  // Texture coordinates
     glGenBuffers(1, &nbo);  // Normals
+    glGenBuffers(1, &tanbo); // Tangents
+    glGenBuffers(1, &bitanbo); // Bitangents
     glGenBuffers(1, &ebo);  // Indices
 
     // Bind the Vertex Array Object first, then bind and set vertex buffers, and then configure vertex attributes.
@@ -42,6 +46,20 @@ Mesh::Mesh(
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); 
     glEnableVertexAttribArray(2);
 
+    // Tangents
+    glBindBuffer(GL_ARRAY_BUFFER, tanbo);
+    glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(glm::vec3), tangents.data(), GL_STATIC_DRAW);
+    // Vertex Attribute 3
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); 
+    glEnableVertexAttribArray(3);
+
+    // Bitangents
+    glBindBuffer(GL_ARRAY_BUFFER, bitanbo);
+    glBufferData(GL_ARRAY_BUFFER, bitangents.size() * sizeof(glm::vec3), bitangents.data(), GL_STATIC_DRAW);
+    // Vertex Attribute 4
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); 
+    glEnableVertexAttribArray(4);
+
     // Element Buffer Object (Indices)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
@@ -57,30 +75,39 @@ Mesh::~Mesh()
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &tbo);
     glDeleteBuffers(1, &nbo);
+    glDeleteBuffers(1, &tanbo);
+    glDeleteBuffers(1, &bitanbo);
     glDeleteBuffers(1, &ebo);
 }
 
-void Mesh::draw(GLuint shaderProgram, GLuint textureID)
+void Mesh::draw(GLuint shaderProgram, GLuint textureID, GLuint normalMapID)
 {
     // Use the shader program
     glUseProgram(shaderProgram);
 
-    // Bind the texture
+    // Bind the diffuse texture
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureID);
-    // Assume the shader has a sampler2D named "texture1"
-    glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
+    glUniform1i(glGetUniformLocation(shaderProgram, "textureDiffuse"), 0);
 
-    // Bind the VAO
+    // Handle normal map
+    bool useNormalMap = normalMapID != 0;
+    glUniform1i(glGetUniformLocation(shaderProgram, "useNormalMap"), useNormalMap);
+
+    if (useNormalMap)
+    {
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, normalMapID);
+        glUniform1i(glGetUniformLocation(shaderProgram, "textureNormal"), 1);
+    }
+
+    // Draw the mesh
     glBindVertexArray(vao);
-
-    // Draw the mesh using indices
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
-
-    // Unbind the VAO
     glBindVertexArray(0);
 
-    // Optionally unbind the texture
+    // Cleanup
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

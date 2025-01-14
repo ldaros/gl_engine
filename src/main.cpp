@@ -15,6 +15,7 @@
 #include "core/file_system.h"
 #include "core/obj_loader.h"
 #include "core/transform.h"
+#include "core/utils.h"
 #include "renderer/shader.h"
 #include "renderer/camera.h"
 #include "renderer/mesh.h"
@@ -136,12 +137,20 @@ int main()
         return -1;
     }
 
+    // Calculate tangents and bitangents
+    std::vector<glm::vec3> tangents, bitangents;
+    calculateTangents(vertices, UVs, normals, indices, tangents, bitangents);
+
     // Create mesh
-    Mesh mesh(vertices, UVs, normals, indices);
+    Mesh mesh(vertices, UVs, normals, indices, tangents, bitangents);
     
     // Load texture
     Texture texture("../resources/default.DDS");
     GLuint textureID = texture.getID();
+
+    // Load normal map
+    Texture normalMap("../resources/normal2.DDS");
+    GLuint normalMapID = normalMap.getID();
 
     Transform transform;
     
@@ -258,7 +267,7 @@ int main()
         shader.setFloat("lightPower", 15.0f);
     
         // Draw mesh
-        mesh.draw(shaderProgram, textureID);
+        mesh.draw(shaderProgram, textureID, normalMapID);
         GLCheckError();
         
         // Start ImGui frame
