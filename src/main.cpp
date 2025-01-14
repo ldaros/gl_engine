@@ -126,17 +126,15 @@ int main()
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec2> UVs;
     std::vector<glm::vec3> normals;
-    if (!ObjLoader::loadOBJ("../resources/teapot.obj", vertices, UVs, normals))
+    std::vector<unsigned int> indices;
+    if (!ObjLoader::loadOBJ("../resources/teapot.obj", vertices, UVs, normals, indices))
     {
         std::cerr << "Failed to load OBJ file" << std::endl;
         return -1;
     }
-    std::cout << "Vertices: " << vertices.size() << std::endl;
-    std::cout << "UVs: " << UVs.size() << std::endl;
-    std::cout << "Normals: " << normals.size() << std::endl;
 
     // Create mesh
-    Mesh mesh(vertices, UVs, normals);
+    Mesh mesh(vertices, UVs, normals, indices);
     
     // Load texture
     Texture texture("../resources/default.DDS");
@@ -280,6 +278,8 @@ int main()
                 ImGuiWindowFlags_NoMove
             );
             ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::Text("Total Vertices: %d", mesh.getVertexCount());
+            ImGui::Text("Total Indices: %d", mesh.getIndexCount());
             ImGui::Text("Camera position : %f, %f, %f", camera.Position.x, camera.Position.y, camera.Position.z);
             ImGui::Text("Camera direction : %f, %f, %f", camera.Front.x, camera.Front.y, camera.Front.z);
             ImGui::End();
