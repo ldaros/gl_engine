@@ -40,6 +40,8 @@ vec3 calculateLighting(vec3 diffuseColor) {
 }
 
 void main() {
-    vec3 diffuseColor = texture(texture1, fs_in.UV).rgb;
-    FragColor = vec4(calculateLighting(diffuseColor), 1.0);
+    vec4 textureColor = texture(texture1, fs_in.UV);
+    vec3 diffuseColor = textureColor.rgb;
+    vec3 litColor = calculateLighting(diffuseColor);
+    FragColor = vec4(litColor, textureColor.a);
 }

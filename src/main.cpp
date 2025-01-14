@@ -105,6 +105,9 @@ int main()
     glEnable(GL_DEPTH_TEST); // Enable depth testing for 3D rendering
     glDepthFunc(GL_LESS);    // Depth test passes when the new depth value is less than the stored value
     glEnable(GL_CULL_FACE); // Enable face culling
+    glCullFace(GL_BACK); // Cull back face
+    glEnable(GL_BLEND); // Enable blending for transparency
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set blending function to source alpha and one minus source alpha
 
     // Initialize shader
     Shader shader;
@@ -278,8 +281,10 @@ int main()
                 ImGuiWindowFlags_NoMove
             );
             ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::Dummy(ImVec2(0.0f, 10.0f));
             ImGui::Text("Total Vertices: %d", mesh.getVertexCount());
             ImGui::Text("Total Indices: %d", mesh.getIndexCount());
+            ImGui::Dummy(ImVec2(0.0f, 10.0f));
             ImGui::Text("Camera position : %f, %f, %f", camera.Position.x, camera.Position.y, camera.Position.z);
             ImGui::Text("Camera direction : %f, %f, %f", camera.Front.x, camera.Front.y, camera.Front.z);
             ImGui::End();
