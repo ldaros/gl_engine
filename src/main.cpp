@@ -20,6 +20,7 @@
 #include "renderer/camera.h"
 #include "renderer/mesh.h"
 #include "renderer/texture.h"
+#include "renderer/light.h"
 
 #define GLCheckError() \
     { GLenum err; while((err = glGetError()) != GL_NO_ERROR) \
@@ -97,7 +98,6 @@ int main()
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 410");
-    bool showGui = true;
     GLCheckError();
 
     glEnable(GL_DEBUG_OUTPUT); // Enable debug output for OpenGL errors
@@ -160,9 +160,17 @@ int main()
     bool firstMouse = true;
     bool isRightMouseButtonPressed = false;
 
-    // Wireframe mode
+    // Light setup
+    Light light;
+    light.setPosition(glm::vec3(0.0f, 3.0f, 5.0f));
+    light.setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    light.setPower(20.0f);
+
     bool wireframeTogglePressed = false;
     bool wireframe = false;
+    bool showGui = true;
+    bool showLightControls = false;
+    bool lightTogglePressed = false;
 
     float deltaTime = 0.0f; // Time between current frame and last frame
     float lastFrameTime = 0.0f; // Time of the last frame
@@ -196,6 +204,14 @@ int main()
             wireframeTogglePressed = false;
         }
 
+        // Toggle light controls
+        if (Input::isKeyDown(Key::L) && !lightTogglePressed) {
+            showLightControls = !showLightControls;
+            lightTogglePressed = true;
+        } else if (Input::isKeyReleased(Key::L)) {
+            lightTogglePressed = false;
+        }
+        
         // Check if the right mouse button is pressed or released
         bool rightMouseButtonCurrentlyPressed = Input::isMouseDown(Mouse::BUTTON_RIGHT);
         if (rightMouseButtonCurrentlyPressed && !isRightMouseButtonPressed)
@@ -263,13 +279,14 @@ int main()
         shader.setMat4("viewMatrix", viewMatrix);
         shader.setMat4("modelMatrix", modelMatrix);
         shader.setMat3("normalMatrix", normalMatrix);
-        shader.setVec3("lightPosition", camera.Position);
-        shader.setFloat("lightPower", 15.0f);
+        shader.setVec3("lightPosition", light.getPosition());
+        shader.setFloat("lightPower", light.getPower());
+        shader.setVec3("lightColor", light.getColor());
     
         // Draw mesh
         mesh.draw(shaderProgram, textureID, normalMapID);
         GLCheckError();
-        
+ 
         // Start ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -296,6 +313,23 @@ int main()
             ImGui::Dummy(ImVec2(0.0f, 10.0f));
             ImGui::Text("Camera position : %f, %f, %f", camera.Position.x, camera.Position.y, camera.Position.z);
             ImGui::Text("Camera direction : %f, %f, %f", camera.Front.x, camera.Front.y, camera.Front.z);
+            ImGui::End();
+        }
+
+        if (showLightControls) {
+            ImGui::SetNextWindowPos(ImVec2(20.0f, 200.0f));
+            ImGui::SetNextWindowBgAlpha(0.5f);
+            ImGui::Begin("Light Controls", &showLightControls, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
+            ImGui::Dummy(ImVec2(0.0f, 10.0f));
+            auto color = light.getColor();
+            auto power = light.getPower();
+            auto position = light.getPosition();
+            ImGui::SliderFloat("Power", &power, 0.0f, 100.0f);
+            light.setPower(power);
+            ImGui::ColorEdit3("Color", &color.x);
+            light.setColor(color);
+            ImGui::DragFloat3("Position", &position.x);
+            light.setPosition(position);
             ImGui::End();
         }
 
