@@ -149,7 +149,7 @@ int main()
     GLuint textureID = texture.getID();
 
     // Load normal map
-    Texture normalMap("../resources/normal2.DDS");
+    Texture normalMap("../resources/normal.DDS");
     GLuint normalMapID = normalMap.getID();
 
     Transform transform;
