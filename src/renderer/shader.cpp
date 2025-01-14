@@ -17,6 +17,11 @@ bool Shader::init(const std::string &vertexCode, const std::string &fragmentCode
     return true;
 }
 
+void Shader::use() const 
+{
+    glUseProgram(m_id);
+}
+
 void Shader::setBool(const std::string &name, bool value) const 
 {
     glUniform1i(glGetUniformLocation(m_id, name.c_str()), (int)value);
