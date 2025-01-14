@@ -26,78 +26,42 @@
     { GLenum err; while((err = glGetError()) != GL_NO_ERROR) \
     std::cerr << "OpenGL error: " << err << " at line " << __LINE__ << std::endl; }
 
-void glfwErrorCallback(int error, const char *description)
-{
-    std::cerr << "GLFW Error " << error << ": " << description << std::endl;
-}
-
+void glfwErrorCallback(int error, const char *description);
 void openGLDebugCallback(
-    GLenum source, 
+    GLenum source,
     GLenum type, 
     GLuint id, 
     GLenum severity, 
     GLsizei length, 
-    const GLchar* message,
+    const GLchar* message, 
     const void* userParam
-)
-{
-    if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM)
-    {
-        std::cerr << "OpenGL Debug: " << message << std::endl;
-    }
-}
+);
+void initializeGLFW();
+void initializeGLEW();
+void initializeImGui(GLFWwindow* window);
+void cleanup(GLFWwindow* window);
 
 int main()
 {
-    // Initialize GLFW
-    if (!glfwInit())
-    {
-        std::cerr << "Failed to initialize GLFW" << std::endl;
-        return -1;
-    }
-
-    // Set GLFW error callback
-    glfwSetErrorCallback(glfwErrorCallback);
-
-    // Set OpenGL version and profile (4.1 core profile)
-    glfwWindowHint(GLFW_SAMPLES, 4); // 4x MSAA
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // OpenGL 4.1
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1); // OpenGL 4.1
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Enable forward compatibility
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Use core profile
+    initializeGLFW();
 
     // Create window
     GLFWwindow *window = glfwCreateWindow(1200, 900, "OG Engine", nullptr, nullptr);
-    if (!window) {
+    if (!window)
+    {
         std::cerr << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
+        exit(EXIT_FAILURE);
     }
 
     // Make OpenGL context current
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
 
-    // Initialize input
     Input::init(window);
-
-    // Initialize GLEW
-    glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK) {
-        std::cerr << "Failed to initialize GLEW" << std::endl;
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return -1;
-    }
+    initializeGLEW();
     GLCheckError();
 
-    // Initialize ImGui
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 410");
+    initializeImGui(window);
     GLCheckError();
 
     glEnable(GL_DEBUG_OUTPUT); // Enable debug output for OpenGL errors
@@ -112,19 +76,13 @@ int main()
 
     // Initialize shader
     Shader shader;
-    bool success = shader.init(
-        FileSystem::read("../resources/standard_vs.glsl"),  // Vertex shader source
-        FileSystem::read("../resources/standard_fs.glsl") // Fragment shader source
-    );
-    if (!success) {
+    if (!shader.init(
+            FileSystem::read("../resources/standard_vs.glsl"),
+            FileSystem::read("../resources/standard_fs.glsl"))) 
+    {
         std::cerr << "Failed to initialize shader" << std::endl;
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return -1;
+        exit(EXIT_FAILURE);
     }
-    GLuint shaderProgram = shader.m_id;
-    glUseProgram(shaderProgram);
-    GLCheckError();
 
     // Load OBJ file
     std::vector<glm::vec3> vertices;
@@ -134,7 +92,7 @@ int main()
     if (!ObjLoader::loadOBJ("../resources/teapot.obj", vertices, UVs, normals, indices))
     {
         std::cerr << "Failed to load OBJ file" << std::endl;
-        return -1;
+        exit(EXIT_FAILURE);
     }
 
     // Calculate tangents and bitangents
@@ -144,11 +102,9 @@ int main()
     // Create mesh
     Mesh mesh(vertices, UVs, normals, indices, tangents, bitangents);
     
-    // Load texture
+    // Load textures
     Texture texture("../resources/default.DDS");
     GLuint textureID = texture.getID();
-
-    // Load normal map
     Texture normalMap("../resources/normal.DDS");
     GLuint normalMapID = normalMap.getID();
 
@@ -178,7 +134,7 @@ int main()
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
-        // Get the current time
+        // Time management
         float currentFrameTime = static_cast<float>(glfwGetTime());
         deltaTime = currentFrameTime - lastFrameTime;
         lastFrameTime = currentFrameTime;
@@ -232,22 +188,27 @@ int main()
         if (isRightMouseButtonPressed)
         {
             // Handle keyboard inputs to move the camera
-            if (Input::isKeyDown(Key::W)) {
+            if (Input::isKeyDown(Key::W)) 
+            {
                 camera.processKeyboard(FORWARD, deltaTime);
             }
-            if (Input::isKeyDown(Key::S)) {
+            if (Input::isKeyDown(Key::S))
+            {
                 camera.processKeyboard(BACKWARD, deltaTime);
             }
-            if (Input::isKeyDown(Key::D)) {
+            if (Input::isKeyDown(Key::D))
+            {
                 camera.processKeyboard(RIGHT, deltaTime);
             }
-            if (Input::isKeyDown(Key::A)) {
+            if (Input::isKeyDown(Key::A))
+            {
                 camera.processKeyboard(LEFT, deltaTime);
             }
 
             // Handle mouse movement
             auto mousePosition = Input::getMousePosition();
-            if (firstMouse) {
+            if (firstMouse) 
+            {
                 lastMouseX = mousePosition.x;
                 lastMouseY = mousePosition.y;
                 firstMouse = false;
@@ -275,6 +236,7 @@ int main()
         glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(viewMatrix * modelMatrix)));
 
         // Set shader uniforms
+        shader.use();
         shader.setMat4("modelViewProjection", projection * viewMatrix * modelMatrix);
         shader.setMat4("viewMatrix", viewMatrix);
         shader.setMat4("modelMatrix", modelMatrix);
@@ -284,7 +246,7 @@ int main()
         shader.setVec3("lightColor", light.getColor());
     
         // Draw mesh
-        mesh.draw(shaderProgram, textureID, normalMapID);
+        mesh.draw(shader.m_id, textureID, normalMapID);
         GLCheckError();
  
         // Start ImGui frame
@@ -316,7 +278,8 @@ int main()
             ImGui::End();
         }
 
-        if (showLightControls) {
+        if (showLightControls)
+        {
             ImGui::SetNextWindowPos(ImVec2(20.0f, 200.0f));
             ImGui::SetNextWindowBgAlpha(0.5f);
             ImGui::Begin("Light Controls", &showLightControls, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
@@ -341,12 +304,76 @@ int main()
         glfwSwapBuffers(window);
     }
     
-    // Cleanup
+    cleanup(window);
+    return 0;
+}   
+
+void glfwErrorCallback(int error, const char *description)
+{
+    std::cerr << "GLFW Error " << error << ": " << description << std::endl;
+}
+
+void openGLDebugCallback(
+    GLenum source, 
+    GLenum type, 
+    GLuint id, 
+    GLenum severity, 
+    GLsizei length, 
+    const GLchar* message,
+    const void* userParam
+)
+{
+    if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM)
+    {
+        std::cerr << "OpenGL Debug: " << message << std::endl;
+    }
+}
+
+void initializeGLFW()
+{
+    // Initialize GLFW
+    if (!glfwInit())
+    {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Set GLFW error callback
+    glfwSetErrorCallback(glfwErrorCallback);
+
+    // Set OpenGL version and profile (4.1 core profile)
+    glfwWindowHint(GLFW_SAMPLES, 4); // 4x MSAA
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // OpenGL 4.1
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1); // OpenGL 4.1
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Enable forward compatibility
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Use core profile
+}
+
+void initializeGLEW()
+{
+    glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK)
+    {
+        std::cerr << "Failed to initialize GLEW" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
+void initializeImGui(GLFWwindow* window)
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 410");
+}
+
+void cleanup(GLFWwindow* window)
+{
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     glfwDestroyWindow(window);
     glfwTerminate();
-
-    return 0;
-}   
+}
