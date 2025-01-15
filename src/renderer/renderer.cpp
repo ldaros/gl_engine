@@ -59,8 +59,8 @@ bool Renderer::setupShaders()
 {
     // Load and compile shaders
     if (!m_shader.init(
-            FileSystem::read("../resources/standard_vs.glsl"),
-            FileSystem::read("../resources/standard_fs.glsl"))) 
+            FileSystem::read("../resources/shaders/standard_vs.glsl"),
+            FileSystem::read("../resources/shaders/standard_fs.glsl"))) 
     {
         std::cerr << "Failed to initialize shader" << std::endl;
         return false;

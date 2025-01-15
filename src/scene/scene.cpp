@@ -3,36 +3,41 @@
 #include <iostream>
 
 #include "../core/utils.h"
-#include "../core/obj_loader.h"
+#include "../core/model_loader.h"
 
 bool Scene::initialize() 
 {
-    std::vector<glm::vec3> vertices;
-    std::vector<glm::vec2> UVs;
-    std::vector<glm::vec3> normals;
-    std::vector<unsigned int> indices;
-    if (!ObjLoader::loadOBJ("../resources/teapot.obj", vertices, UVs, normals, indices))
+    
+    ModelLoader::MeshData meshData;
+    if (!ModelLoader::load("../resources/assets/teapot.fbx", meshData))
     {
         std::cerr << "Failed to load OBJ file" << std::endl;
         exit(EXIT_FAILURE);
     }
     
     std::vector<glm::vec3> tangents, bitangents;
-    calculateTangents(vertices, UVs, normals, indices, tangents, bitangents);
+    calculateTangents(
+        meshData.vertices,
+        meshData.uvs,
+        meshData.normals,
+        meshData.indices,
+        tangents,
+        bitangents
+    );
 
-    if (!m_mesh.initialize(vertices, UVs, normals, indices, tangents, bitangents))
+    if (!m_mesh.initialize(meshData.vertices, meshData.uvs, meshData.normals, meshData.indices, tangents, bitangents))
     {
         std::cerr << "Failed to initialize mesh" << std::endl;
         return false;
     }
 
-    if (!m_diffuseTexture.load("../resources/default.DDS"))
+    if (!m_diffuseTexture.load("../resources/textures/default.DDS"))
     {
         std::cerr << "Failed to load diffuse texture" << std::endl;
         return false;
     }
 
-    if (!m_normalMap.load("../resources/normal.DDS"))
+    if (!m_normalMap.load("../resources/textures/normal.DDS"))
     {
         std::cerr << "Failed to load normal map" << std::endl;
         return false;
