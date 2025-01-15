@@ -4,14 +4,16 @@
 #include <string>
 #include <GL/glew.h>
 
+#include "../core/image_loader.h"
+
 class Texture 
 {
 public:
     Texture();
     ~Texture();
 
-    bool load(const std::string &path);
-    GLuint getID() const;
+    bool initialize(ImageLoader::ImageData& image);
+    GLuint getID() const { return m_id; }
 
 private:
     GLuint m_id;
