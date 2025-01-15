@@ -36,13 +36,15 @@ struct DDSHeader
     uint32_t reserved2;
 };
 
-Texture::Texture(const std::string &path) 
+Texture::Texture() {}
+
+bool Texture::load(const std::string &path) 
 {
     std::ifstream file(path, std::ios::binary);
     if (!file.is_open()) 
     {
         std::cerr << "Failed to open texture file: " << path << std::endl;
-        return;
+        return false;
     }
 
     // Read header
@@ -52,7 +54,7 @@ Texture::Texture(const std::string &path)
     {
         file.close();
         std::cerr << "Invalid texture file: " << path << std::endl;
-        return;
+        return false;
     }
 
     // Read DDS header
@@ -64,7 +66,7 @@ Texture::Texture(const std::string &path)
     {
         file.close();
         std::cerr << "Unsupported texture format: " << path << std::endl;
-        return;
+        return false;
     }
 
     // Calculate mipmap levels and total size
@@ -87,8 +89,8 @@ Texture::Texture(const std::string &path)
     file.close();
 
     // Create OpenGL texture
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
+    glGenTextures(1, &m_id);
+    glBindTexture(GL_TEXTURE_2D, m_id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -109,14 +111,16 @@ Texture::Texture(const std::string &path)
     }
 
     delete[] data;
+
+    return true;
 }
 
 Texture::~Texture() 
 {
-    glDeleteTextures(1, &id);
+    if (m_id) glDeleteTextures(1, &m_id);
 }
 
-GLuint Texture::getID() const 
+GLuint Texture::getID() const
 {
-    return id;
+    return m_id;
 }

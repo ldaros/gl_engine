@@ -8,8 +8,10 @@
 
 class Mesh {
 public:
-    // Constructor & Destructor
-    Mesh(
+    Mesh();
+    ~Mesh();
+
+    bool initialize(
         const std::vector<glm::vec3> &vertices, 
         const std::vector<glm::vec2> &UVs, 
         const std::vector<glm::vec3> &normals, 
@@ -17,10 +19,10 @@ public:
         const std::vector<glm::vec3> &tangents,
         const std::vector<glm::vec3> &bitangents
     );
-    ~Mesh();
+    void cleanup();
 
     // Render the mesh
-    void draw(GLuint shaderProgram, GLuint textureID, GLuint normalMapID = 0);
+    void draw(GLuint shaderProgram, GLuint textureID, GLuint normalMapID = 0) const;
 
     unsigned int getIndexCount() const;
     unsigned int getVertexCount() const;
@@ -28,8 +30,8 @@ public:
 private:
     // Mesh Data
     GLuint vao, vbo, tbo, nbo, tanbo, bitanbo, ebo;
-    unsigned int indexCount;
-    unsigned int vertexCount;
+    unsigned int m_indexCount;
+    unsigned int m_vertexCount;
 
     // Initializes all the buffer objects/arrays
     void setupMesh();

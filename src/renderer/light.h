@@ -19,9 +19,9 @@ public:
 	float getPower() const;
 
 private:
-    glm::vec3 position;
-    glm::vec3 color;
-	float power;
+    glm::vec3 m_position;
+    glm::vec3 m_color;
+	float m_power;
 };
 
 #endif // LIGHT_H

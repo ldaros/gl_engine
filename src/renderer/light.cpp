@@ -1,39 +1,39 @@
 #include "light.h"
 
 Light::Light()
-    : position(0.0f, 0.0f, 0.0f),
-      color(1.0f, 1.0f, 1.0f),
-      power(1.0f)
+    : m_position(0.0f, 0.0f, 0.0f),
+      m_color(1.0f, 1.0f, 1.0f),
+      m_power(1.0f)
 {}
 
 Light::~Light() {}
 
 void Light::setPosition(const glm::vec3& position)
 {
-    this->position = position;
+    this->m_position = position;
 }
 
 void Light::setColor(const glm::vec3& color)
 {
-    this->color = color;
+    this->m_color = color;
 }
 
 void Light::setPower(float power)
 {
-    this->power = power;
+    this->m_power = power;
 }
 
 const glm::vec3& Light::getPosition() const
 {
-    return position;
+    return m_position;
 }
 
 const glm::vec3& Light::getColor() const
 {
-    return color;
+    return m_color;
 }
 
 float Light::getPower() const
 {
-    return power;
+    return m_power;
 }

@@ -3,7 +3,10 @@
 #include <GL/glew.h>
 #include <iostream>
 
-Mesh::Mesh(
+Mesh::Mesh() { }
+Mesh::~Mesh() { }
+
+bool Mesh::initialize(
     const std::vector<glm::vec3> &vertices, 
     const std::vector<glm::vec2> &UVs, 
     const std::vector<glm::vec3> &normals, 
@@ -11,8 +14,10 @@ Mesh::Mesh(
     const std::vector<glm::vec3> &tangents,
     const std::vector<glm::vec3> &bitangents
 )
-    : indexCount(indices.size()), vertexCount(vertices.size())
 {
+    m_indexCount = indices.size();
+    m_vertexCount = vertices.size();
+
     // Generate buffer and array objects
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);  // Vertex positions
@@ -66,11 +71,12 @@ Mesh::Mesh(
 
     // Unbind the VAO
     glBindVertexArray(0);
+
+    return true;
 }
 
-Mesh::~Mesh() 
+void Mesh::cleanup()
 {
-    // Delete buffers and arrays
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &tbo);
@@ -80,7 +86,7 @@ Mesh::~Mesh()
     glDeleteBuffers(1, &ebo);
 }
 
-void Mesh::draw(GLuint shaderProgram, GLuint textureID, GLuint normalMapID)
+void Mesh::draw(GLuint shaderProgram, GLuint textureID, GLuint normalMapID) const
 {
     // Use the shader program
     glUseProgram(shaderProgram);
@@ -103,7 +109,7 @@ void Mesh::draw(GLuint shaderProgram, GLuint textureID, GLuint normalMapID)
 
     // Draw the mesh
     glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
     // Cleanup
@@ -111,12 +117,12 @@ void Mesh::draw(GLuint shaderProgram, GLuint textureID, GLuint normalMapID)
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-unsigned int Mesh::getIndexCount() const 
+unsigned int Mesh::getIndexCount() const
 {
-    return indexCount;
+    return m_indexCount;
 }
 
-unsigned int Mesh::getVertexCount() const 
+unsigned int Mesh::getVertexCount() const
 {
-    return vertexCount;
+    return m_vertexCount;
 }

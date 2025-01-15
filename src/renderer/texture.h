@@ -7,13 +7,14 @@
 class Texture 
 {
 public:
-    Texture(const std::string &path);
+    Texture();
     ~Texture();
 
+    bool load(const std::string &path);
     GLuint getID() const;
 
 private:
-    GLuint id;
+    GLuint m_id;
 };
 
 #endif // TEXTURE_H

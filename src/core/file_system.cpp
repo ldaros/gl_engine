@@ -14,7 +14,8 @@ std::string FileSystem::read(const std::string &filename)
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
     std::stringstream fileStream;
-    try {
+    try 
+    {
         file.open(filename.c_str());
         fileStream << file.rdbuf();
         file.close();

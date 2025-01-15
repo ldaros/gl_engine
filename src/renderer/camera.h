@@ -15,6 +15,8 @@ enum CameraMovement
 class Camera 
 {
 public:
+    Camera();
+
     glm::vec3 Position;
     glm::vec3 Front;
     glm::vec3 Up;
