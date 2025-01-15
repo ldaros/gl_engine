@@ -46,7 +46,7 @@ set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
 add_subdirectory(vendor/assimp)
 
 # Create the executable
-add_executable(${PROJECT_NAME} src/main.cpp ${CPP_SOURCES} ${HEADER_FILES} ${IMGUI_SOURCES})
+add_executable(${PROJECT_NAME} src/main.cpp ${CPP_SOURCES} ${HEADER_FILES} ${IMGUI_SOURCES} vendor/stb/stb_image.h)
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw glew_s glm assimp)
@@ -59,4 +59,5 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${IMGUI_DIR}
     ${IMGUI_DIR}/backends
     vendor/assimp/include
+    vendor/stb
 )
