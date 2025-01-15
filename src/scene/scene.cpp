@@ -9,7 +9,7 @@
 bool Scene::initialize() 
 {
     ModelLoader::MeshData meshData;
-    if (!ModelLoader::load("../resources/assets/teapot.fbx", meshData))
+    if (!ModelLoader::load("../resources/assets/shadow_test.fbx", meshData))
     {
         std::cerr << "Failed to load OBJ file" << std::endl;
         exit(EXIT_FAILURE);
@@ -50,9 +50,11 @@ bool Scene::initialize()
     m_camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
 
     m_light = Light();
+    m_light.setType(LightType::DIRECTIONAL);
     m_light.setPosition(glm::vec3(0.0f, 3.0f, 5.0f));
+    m_light.setDirection(glm::vec3(0.5f, -0.5f, -1.0f));
     m_light.setColor(glm::vec3(1.0f, 1.0f, 1.0f));
-    m_light.setPower(20.0f);
+    m_light.setPower(1.0f);
 
     m_transform = Transform();
     m_transform.scale(glm::vec3(0.1f));

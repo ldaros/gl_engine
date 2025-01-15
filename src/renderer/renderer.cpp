@@ -13,11 +13,17 @@ bool Renderer::initialize()
     {
         return false;
     }
+    
     if (!setupShaders())
     {
         return false;
     }
        
+    if (!m_shadowMap.init())
+    {
+        return false;
+    }
+
     return true;
 }
 
@@ -62,10 +68,49 @@ bool Renderer::setupShaders()
             FileSystem::read("../resources/shaders/standard_vs.glsl"),
             FileSystem::read("../resources/shaders/standard_fs.glsl"))) 
     {
-        std::cerr << "Failed to initialize shader" << std::endl;
+        std::cerr << "Failed to initialize standard shader" << std::endl;
+        return false;
+    }
+    if (!m_depthShader.init(
+            FileSystem::read("../resources/shaders/depth_vs.glsl"),
+            FileSystem::read("../resources/shaders/depth_fs.glsl"))) 
+    {
+        std::cerr << "Failed to initialize depth shader" << std::endl;
         return false;
     }
     return true;
+}
+
+void Renderer::renderShadowMap(Scene& scene)
+{
+    const Light& light = scene.getLight();
+    
+    // Only render shadow map for directional lights
+    if (!light.castsShadows())
+    {
+        return;
+    }
+
+    m_shadowMap.bind();
+    glClear(GL_DEPTH_BUFFER_BIT);
+    
+    float orthoSize = 10.0f;
+    glm::mat4 lightProjection = glm::ortho(-orthoSize, orthoSize, -orthoSize, orthoSize, 0.1f, m_shadowDistance * 2.0f);
+    
+    // Use light direction for directional light
+    glm::vec3 lightDir = light.getDirection();
+    glm::vec3 lightPos = -lightDir * m_shadowDistance;  // Position light far along its direction
+    glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    
+    m_lightSpaceMatrix = lightProjection * lightView;
+    
+    m_depthShader.use();
+    m_depthShader.setMat4("lightSpaceMatrix", m_lightSpaceMatrix);
+    m_depthShader.setMat4("model", scene.getTransform().getModelMatrix());
+    
+    scene.getMesh().draw(m_depthShader.m_id, 0, 0);
+    
+    m_shadowMap.unbind();
 }
 
 void Renderer::setupFrame(int width, int height) 
@@ -81,9 +126,13 @@ void Renderer::render(GLFWwindow* window, Scene& scene, Camera& camera) {
     const Transform& transform = scene.getTransform();
     const Light& light = scene.getLight();
 
+    // Render shadow map
+    renderShadowMap(scene);
+
     // Get window size for aspect ratio
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
+    glViewport(0, 0, width, height); // Reset viewport
 
     // Calculate matrices
     glm::mat4 projection = glm::perspective(
@@ -102,16 +151,29 @@ void Renderer::render(GLFWwindow* window, Scene& scene, Camera& camera) {
     m_shader.setMat4("viewMatrix", view);
     m_shader.setMat4("modelMatrix", model);
     m_shader.setMat3("normalMatrix", normalMatrix);
+    m_shader.setMat4("lightSpaceMatrix", m_lightSpaceMatrix);
 
     // Set light uniforms
     m_shader.setVec3("lightPosition", light.getPosition());
     m_shader.setFloat("lightPower", light.getPower());
     m_shader.setVec3("lightColor", light.getColor());
+    m_shader.setBool("isDirectionalLight", light.getType() == LightType::DIRECTIONAL);
 
-    // Draw mesh
-    mesh.draw(m_shader.m_id, 
-              scene.getDiffuseTexture().getID(), 
-              scene.getNormalMap().getID());
+    if (scene.getLight().getType() == LightType::DIRECTIONAL)
+    {
+        m_shader.setVec3("lightPosition", -scene.getLight().getDirection() * 1000.0f);
+    }
+    else
+    {
+        m_shader.setVec3("lightPosition", scene.getLight().getPosition());
+    }
+
+    // Bind shadow map
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, m_shadowMap.getDepthTexture());
+    m_shader.setInt("shadowMap", 2);
+
+    mesh.draw(m_shader.m_id, scene.getDiffuseTexture().getID());
 }
 
 void Renderer::toggleWireframe() {

@@ -3,6 +3,7 @@
 
 #include "shader.h"
 #include "camera.h"
+#include "framebuffer.h"
 #include "../scene/scene.h"
 #include "../ui/ui_manager.h"
 
@@ -21,7 +22,13 @@ private:
                             GLenum severity, GLsizei length, 
                             const GLchar* message, const void* userParam);
 
+    void renderShadowMap(Scene& scene);
+
     Shader m_shader;
+    Shader m_depthShader;
+    Framebuffer m_shadowMap{2048, 2048, true, false};
+    glm::mat4 m_lightSpaceMatrix;
+    const float m_shadowDistance = 10.0f;
 };
 
 #endif // RENDERER_H
