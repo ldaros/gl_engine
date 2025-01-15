@@ -37,11 +37,19 @@ set(IMGUI_HEADERS
     ${IMGUI_DIR}/backends/imgui_impl_opengl3.h
 )
 
+# Assimp
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
+add_subdirectory(vendor/assimp)
+
 # Create the executable
 add_executable(${PROJECT_NAME} src/main.cpp ${CPP_SOURCES} ${HEADER_FILES} ${IMGUI_SOURCES})
 
 # Link libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw glew_s glm)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw glew_s glm assimp)
 
 # Add include directories
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -50,4 +58,5 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     vendor/glm
     ${IMGUI_DIR}
     ${IMGUI_DIR}/backends
+    vendor/assimp/include
 )
