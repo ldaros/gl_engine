@@ -70,22 +70,32 @@ void UIManager::renderMainOverlay(Scene& scene) {
 
 void UIManager::renderLightingWindow(Scene& scene) {
     if (ImGui::Begin("Lighting", &m_showLightingWindow, ImGuiWindowFlags_AlwaysAutoResize)) {
-        // Get light for editing
         Light& light = scene.getLight();
-        
-        // Position
+        LightType type = light.getType();
+
+        if (ImGui::RadioButton("Point", type == LightType::POINT)) {
+            light.setType(LightType::POINT);
+        }
+
+        if (ImGui::RadioButton("Directional", type == LightType::DIRECTIONAL)) {
+            light.setType(LightType::DIRECTIONAL);
+        }
+
         glm::vec3 position = light.getPosition();
         if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f)) {
             light.setPosition(position);
         }
-        
-        // Color
+
+        glm::vec3 direction = light.getDirection();
+        if (ImGui::DragFloat3("Direction", glm::value_ptr(direction), 0.1f)) {
+            light.setDirection(direction);
+        }
+
         glm::vec3 color = light.getColor();
         if (ImGui::ColorEdit3("Color", glm::value_ptr(color))) {
             light.setColor(color);
         }
         
-        // Power
         float power = light.getPower();
         if (ImGui::SliderFloat("Power", &power, 0.0f, 100.0f)) {
             light.setPower(power);
