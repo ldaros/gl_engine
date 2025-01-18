@@ -56,8 +56,7 @@ bool Scene::initialize()
     m_light.setColor(glm::vec3(1.0f, 1.0f, 1.0f));
     m_light.setPower(1.0f);
 
-    m_transform = Transform();
-    m_transform.scale(glm::vec3(0.1f));
+    m_transform.setScale(glm::vec3(0.1f));
     
     return true;
 }
@@ -65,6 +64,11 @@ bool Scene::initialize()
 void Scene::cleanup()
 {
     m_mesh.cleanup();
+}
+
+Transform& Scene::getTransform()
+{
+    return m_transform;
 }
 
 Camera& Scene::getCamera()

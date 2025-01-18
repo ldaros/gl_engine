@@ -5,7 +5,7 @@
 #include "../renderer/light.h"
 #include "../renderer/camera.h"
 #include "../renderer/texture.h"
-#include "transform.h"
+#include "../core/transform.h"
 
 class Scene 
 {
@@ -13,7 +13,8 @@ public:
     bool initialize();
     
     Camera& getCamera();
-    Light& getLight();    const Transform& getTransform() const { return m_transform; }
+    Light& getLight();
+    Transform& getTransform();
     const Mesh& getMesh() const { return m_mesh; }
     const Texture& getDiffuseTexture() const { return m_diffuseTexture; }
     const Texture& getNormalMap() const { return m_normalMap; }
