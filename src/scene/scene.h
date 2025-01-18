@@ -2,10 +2,10 @@
 #define SCENE_H
 
 #include "../renderer/mesh.h"
-#include "../renderer/light.h"
-#include "../renderer/camera.h"
 #include "../renderer/texture.h"
 #include "../core/transform.h"
+#include "camera.h"
+#include "light.h"
 
 class Scene 
 {

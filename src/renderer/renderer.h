@@ -2,9 +2,9 @@
 #define RENDERER_H
 
 #include "shader.h"
-#include "camera.h"
 #include "framebuffer.h"
 #include "../scene/scene.h"
+#include "../scene/camera.h"
 #include "../ui/ui_manager.h"
 
 class Renderer {
