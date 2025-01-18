@@ -70,8 +70,13 @@ bool Framebuffer::init()
 
     if (m_color)
     {
-        // Set draw buffer
         GLenum drawBuffer = GL_COLOR_ATTACHMENT0;
+        glDrawBuffers(1, &drawBuffer);
+    } 
+    else if (m_depth)
+    {
+        // no color buffer
+        GLenum drawBuffer = GL_NONE;
         glDrawBuffers(1, &drawBuffer);
     }
 
@@ -81,7 +86,6 @@ bool Framebuffer::init()
         return false;
     }
 
-    // Unbind the framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     return true;
 }
