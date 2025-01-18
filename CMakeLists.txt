@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.24)
 project(engine)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # Add all .cpp files in the src directory and its subdirectories
 file(GLOB_RECURSE CPP_SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADER_FILES src/*.h)
