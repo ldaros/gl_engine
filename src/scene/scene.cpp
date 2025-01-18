@@ -15,17 +15,13 @@ bool Scene::initialize()
         exit(EXIT_FAILURE);
     }
     
-    std::vector<glm::vec3> tangents, bitangents;
-    calculateTangents(
+    if (!m_mesh.initialize(
         meshData.vertices,
         meshData.uvs,
         meshData.normals,
         meshData.indices,
-        tangents,
-        bitangents
-    );
-
-    if (!m_mesh.initialize(meshData.vertices, meshData.uvs, meshData.normals, meshData.indices, tangents, bitangents))
+        meshData.tangents,
+        meshData.bitangents))
     {
         std::cerr << "Failed to initialize mesh" << std::endl;
         return false;
@@ -45,7 +41,7 @@ bool Scene::initialize()
         std::cerr << "Failed to load normal map" << std::endl;
         return false;
     }
-    m_normalMap.initialize(normalMapData);
+    // m_normalMap.initialize(normalMapData);
 
     m_camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
 

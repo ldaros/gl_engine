@@ -173,7 +173,7 @@ void Renderer::render(GLFWwindow* window, Scene& scene, Camera& camera) {
     glBindTexture(GL_TEXTURE_2D, m_shadowMap.getDepthTexture());
     m_shader.setInt("shadowMap", 2);
 
-    mesh.draw(m_shader.m_id, scene.getDiffuseTexture().getID());
+    mesh.draw(m_shader.m_id, scene.getDiffuseTexture().getID(), scene.getNormalMap().getID());
 }
 
 void Renderer::toggleWireframe() {

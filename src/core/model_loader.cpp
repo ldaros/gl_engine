@@ -68,6 +68,26 @@ bool ModelLoader::load(const std::string& path, ModelLoader::MeshData& out_mesh)
                     aiMesh->mTextureCoords[0][i].y
                 ));
             }
+
+            // Tangents
+            if (aiMesh->mTangents) 
+            {
+                out_mesh.tangents.push_back(glm::vec3(
+                    aiMesh->mTangents[i].x,
+                    aiMesh->mTangents[i].y,
+                    aiMesh->mTangents[i].z
+                ));
+            }
+
+            // Bitangents
+            if (aiMesh->mBitangents) 
+            {
+                out_mesh.bitangents.push_back(glm::vec3(
+                    aiMesh->mBitangents[i].x,
+                    aiMesh->mBitangents[i].y,
+                    aiMesh->mBitangents[i].z
+                ));
+            }
         }
 
         // Process indices
