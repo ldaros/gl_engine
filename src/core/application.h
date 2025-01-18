@@ -34,6 +34,7 @@ private:
     bool m_lightTogglePressed = false;
     bool m_performanceTogglePressed = false;
     bool m_wireframeTogglePressed = false;
+    bool m_transformTogglePressed = false;
     bool m_isRightMouseButtonPressed = false;
 };
 

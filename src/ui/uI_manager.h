@@ -15,15 +15,18 @@ public:
     
     void toggleLightingWindow();
     void togglePerformanceWindow();
+    void toggleTransformWindow();
 
 private:
     void renderMainOverlay(Scene& scene);
     void renderLightingWindow(Scene& scene);
     void renderPerformanceWindow();
+    void renderTransformWindow(Scene& scene);
     void renderFrame();
 
     bool m_showLightingWindow = false;
     bool m_showPerformanceWindow = false;
+    bool m_showTransformWindow = false;
 };
 
 #endif // UI_MANAGER_H

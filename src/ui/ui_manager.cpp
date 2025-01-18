@@ -5,7 +5,8 @@
 #include <backends/imgui_impl_opengl3.h>
 #include <glm/gtc/type_ptr.hpp>
 
-void UIManager::initialize(GLFWwindow* window) {
+void UIManager::initialize(GLFWwindow* window) 
+{
     // Initialize ImGui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -22,22 +23,26 @@ void UIManager::initialize(GLFWwindow* window) {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable keyboard controls
 }
 
-void UIManager::newFrame() {
+void UIManager::newFrame() 
+{
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 
-void UIManager::render(Scene& scene) {
+void UIManager::render(Scene& scene) 
+{
     renderMainOverlay(scene);
 
     if (m_showLightingWindow) renderLightingWindow(scene);
     if (m_showPerformanceWindow) renderPerformanceWindow();
+    if (m_showTransformWindow) renderTransformWindow(scene);
 
     UIManager::renderFrame();
 }
 
-void UIManager::renderMainOverlay(Scene& scene) {
+void UIManager::renderMainOverlay(Scene& scene) 
+{
     // Configure window flags
     ImGuiWindowFlags window_flags = 
         ImGuiWindowFlags_NoDecoration |
@@ -68,44 +73,54 @@ void UIManager::renderMainOverlay(Scene& scene) {
     ImGui::End();
 }
 
-void UIManager::renderLightingWindow(Scene& scene) {
-    if (ImGui::Begin("Lighting", &m_showLightingWindow, ImGuiWindowFlags_AlwaysAutoResize)) {
+void UIManager::renderLightingWindow(Scene& scene) 
+{
+    if (ImGui::Begin("Lighting", &m_showLightingWindow, ImGuiWindowFlags_AlwaysAutoResize))
+    {
         Light& light = scene.getLight();
         LightType type = light.getType();
 
-        if (ImGui::RadioButton("Point", type == LightType::POINT)) {
+        if (ImGui::RadioButton("Point", type == LightType::POINT))
+        {
             light.setType(LightType::POINT);
         }
 
-        if (ImGui::RadioButton("Directional", type == LightType::DIRECTIONAL)) {
+        if (ImGui::RadioButton("Directional", type == LightType::DIRECTIONAL))
+        {
             light.setType(LightType::DIRECTIONAL);
         }
 
         glm::vec3 position = light.getPosition();
-        if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f)) {
+        if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f))
+        {
             light.setPosition(position);
         }
 
         glm::vec3 direction = light.getDirection();
-        if (ImGui::DragFloat3("Direction", glm::value_ptr(direction), 0.1f)) {
+        if (ImGui::DragFloat3("Direction", glm::value_ptr(direction), 0.1f))
+        {
             light.setDirection(direction);
         }
 
         glm::vec3 color = light.getColor();
-        if (ImGui::ColorEdit3("Color", glm::value_ptr(color))) {
+        if (ImGui::ColorEdit3("Color", glm::value_ptr(color)))
+        {
             light.setColor(color);
         }
         
         float power = light.getPower();
-        if (ImGui::SliderFloat("Power", &power, 0.0f, 100.0f)) {
+        if (ImGui::SliderFloat("Power", &power, 0.0f, 100.0f))
+        {
             light.setPower(power);
         }
     }
     ImGui::End();
 }
 
-void UIManager::renderPerformanceWindow() {
-    if (ImGui::Begin("Performance", &m_showPerformanceWindow, ImGuiWindowFlags_AlwaysAutoResize)) {
+void UIManager::renderPerformanceWindow() 
+{
+    if (ImGui::Begin("Performance", &m_showPerformanceWindow, ImGuiWindowFlags_AlwaysAutoResize))
+    {
         const float HISTORY_SIZE = 90;
         static float fpsHistory[90] = {};
         static int offset = 0;
@@ -118,8 +133,10 @@ void UIManager::renderPerformanceWindow() {
         float average = 0.0f;
         float min = FLT_MAX;
         float max = 0.0f;
-        for (int n = 0; n < IM_ARRAYSIZE(fpsHistory); n++) {
-            if (fpsHistory[n] > 0.0f) {
+        for (int n = 0; n < IM_ARRAYSIZE(fpsHistory); n++) 
+        {
+            if (fpsHistory[n] > 0.0f) 
+            {
                 average += fpsHistory[n];
                 min = std::min(min, fpsHistory[n]);
                 max = std::max(max, fpsHistory[n]);
@@ -139,22 +156,61 @@ void UIManager::renderPerformanceWindow() {
     ImGui::End();
 }
 
+void UIManager::renderTransformWindow(Scene& scene)
+{
+    if (ImGui::Begin("Transform", &m_showTransformWindow, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        Transform& transform = scene.getTransform();
+        glm::vec3 position = transform.getPosition();
+        if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f))
+        {
+            transform.setPosition(position);
+        }
+        
+        glm::vec3 rotation = transform.getRotation();
+        if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 0.1f))
+        {
+            transform.setRotation(rotation);
+        }
+        
+        glm::vec3 scale = transform.getScale();
+        if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.1f))
+        {
+            transform.setScale(scale);
+        }
 
-void UIManager::renderFrame() {
+        if (ImGui::Button("Reset"))
+        {
+            transform.reset();
+        }
+    }
+    ImGui::End();
+}
+
+void UIManager::renderFrame() 
+{
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void UIManager::cleanup() {
+void UIManager::cleanup() 
+{
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
-void UIManager::toggleLightingWindow() {
+void UIManager::toggleLightingWindow() 
+{
     m_showLightingWindow = !m_showLightingWindow;
 }
 
-void UIManager::togglePerformanceWindow() {
+void UIManager::togglePerformanceWindow() 
+{
     m_showPerformanceWindow = !m_showPerformanceWindow;
+}
+
+void UIManager::toggleTransformWindow() 
+{
+    m_showTransformWindow = !m_showTransformWindow;
 }

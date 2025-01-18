@@ -80,7 +80,18 @@ void Application::update(float deltaTime)
     {
         m_performanceTogglePressed = false;
     }
-    
+
+    // Toggle transform window
+    if (Input::isKeyDown(Key::T) && !m_transformTogglePressed) 
+    {
+        m_uiManager->toggleTransformWindow();
+        m_transformTogglePressed = true;
+    } 
+    else if (Input::isKeyReleased(Key::T)) 
+    {
+        m_transformTogglePressed = false;
+    }
+
     bool rightMouseButtonCurrentlyPressed = Input::isMouseDown(Mouse::BUTTON_RIGHT);
 
     if (rightMouseButtonCurrentlyPressed && !m_isRightMouseButtonPressed)
