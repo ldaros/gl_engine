@@ -3,7 +3,8 @@
 
 #include <GLFW/glfw3.h>
 
-namespace Mouse {
+namespace Mouse 
+{
     enum MouseCode
     {
         BUTTON_1 = GLFW_MOUSE_BUTTON_1,

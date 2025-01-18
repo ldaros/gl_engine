@@ -7,7 +7,8 @@
 #include "scene/camera.h"
 #include "ui/ui_manager.h"
 
-class Renderer {
+class Renderer 
+{
 public:
     bool initialize();
     void render(GLFWwindow* window, Scene& scene, Camera& camera);

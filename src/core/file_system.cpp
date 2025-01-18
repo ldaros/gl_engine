@@ -19,7 +19,9 @@ std::string FileSystem::read(const std::string &filename)
         file.open(filename.c_str());
         fileStream << file.rdbuf();
         file.close();
-    } catch (std::ifstream::failure e) {
+    } 
+    catch (std::ifstream::failure e) 
+    {
         std::cout << "FileManager: error reading file: " << filename << std::endl;
     }
 

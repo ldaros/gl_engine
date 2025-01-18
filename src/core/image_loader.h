@@ -4,9 +4,11 @@
 #include <string>
 #include <vector>
 
-class ImageLoader {
+class ImageLoader 
+{
 public:
-    struct ImageData {
+    struct ImageData 
+    {
         std::vector<unsigned char> pixels;
         int width;
         int height;

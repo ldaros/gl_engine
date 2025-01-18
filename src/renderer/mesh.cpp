@@ -3,8 +3,9 @@
 #include <GL/glew.h>
 #include <iostream>
 
-Mesh::Mesh() { }
-Mesh::~Mesh() { }
+Mesh::Mesh() {}
+
+Mesh::~Mesh() {}
 
 bool Mesh::initialize(
     const std::vector<glm::vec3> &vertices, 

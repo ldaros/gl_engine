@@ -6,7 +6,8 @@
 
 #include "scene/scene.h"
 
-class UIManager {
+class UIManager 
+{
 public:
     void initialize(GLFWwindow* window);
     void cleanup();

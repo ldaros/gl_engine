@@ -1,11 +1,11 @@
 #include "light.h"
 
 Light::Light()
-    : m_type(LightType::POINT),
-      m_position(0.0f, 0.0f, 0.0f),
-      m_direction(0.0f, 0.0f, 0.0f),
-      m_color(1.0f, 1.0f, 1.0f),
-      m_power(1.0f)
+    : m_type(LightType::POINT)
+    , m_position(0.0f, 0.0f, 0.0f)
+    , m_direction(0.0f, 0.0f, 0.0f)
+    , m_color(1.0f, 1.0f, 1.0f)
+    , m_power(1.0f)
 {}
 
 Light::~Light() {}

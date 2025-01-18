@@ -3,7 +3,8 @@
 
 #include <GLFW/glfw3.h>
 
-namespace Key {
+namespace Key 
+{
     enum KeyCode
     {
         SPACE = GLFW_KEY_SPACE,

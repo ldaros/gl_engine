@@ -2,14 +2,14 @@
 
 #include <iostream>
 
-Framebuffer::Framebuffer(int width, int height, bool depth, bool color):
-    m_width(width),
-    m_height(height),
-    m_depth(depth),
-    m_color(color),
-    m_framebuffer(0),
-    m_texture(0)
-{ }
+Framebuffer::Framebuffer(int width, int height, bool depth, bool color)
+    : m_width(width)
+    , m_height(height)
+    , m_depth(depth)
+    , m_color(color)
+    , m_framebuffer(0)
+    , m_texture(0)
+{}
 
 Framebuffer::~Framebuffer()
 {

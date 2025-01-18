@@ -4,9 +4,11 @@
 #include <iostream>
 
 ImageLoader::ImageLoader() {}
+
 ImageLoader::~ImageLoader() {}
 
-bool ImageLoader::load(const std::string& path, ImageData& image) {
+bool ImageLoader::load(const std::string& path, ImageData& image) 
+{
     // Clear any existing data
     image.pixels.clear();
     image.width = 0;
@@ -19,7 +21,8 @@ bool ImageLoader::load(const std::string& path, ImageData& image) {
     
     unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
     
-    if (!data) {
+    if (!data) 
+    {
         std::cerr << "Failed to load image: " << path << "\n";
         std::cerr << "STB Error: " << stbi_failure_reason() << "\n";
         return false;

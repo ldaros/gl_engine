@@ -4,7 +4,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-Texture::Texture(): m_id(0) { }
+Texture::Texture(): m_id(0) {}
 
 Texture::~Texture() 
 {
