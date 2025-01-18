@@ -13,11 +13,10 @@ public:
     bool initialize();
     
     Camera& getCamera();
-    Light& getLight();
-    const Transform& getTransform();
-    const Mesh& getMesh();
-    const Texture& getDiffuseTexture();
-    const Texture& getNormalMap();
+    Light& getLight();    const Transform& getTransform() const { return m_transform; }
+    const Mesh& getMesh() const { return m_mesh; }
+    const Texture& getDiffuseTexture() const { return m_diffuseTexture; }
+    const Texture& getNormalMap() const { return m_normalMap; }
 
     void cleanup();
 

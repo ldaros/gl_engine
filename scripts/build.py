@@ -76,7 +76,8 @@ except subprocess.CalledProcessError as e:
 
 # Run the executable if requested
 if args.run:
-    exe_path = os.path.join(args.configuration, f"{EXE_NAME}.exe")
+    exe_path = os.path.join(BUILD_DIR, args.configuration, f"{EXE_NAME}.exe")
+    os.chdir("..")
     if os.path.exists(exe_path):
         print("Running the executable...")
         subprocess.run([exe_path])

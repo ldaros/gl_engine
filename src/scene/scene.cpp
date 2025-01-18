@@ -9,7 +9,7 @@
 bool Scene::initialize() 
 {
     ModelLoader::MeshData meshData;
-    if (!ModelLoader::load("../resources/assets/shadow_test.fbx", meshData))
+    if (!ModelLoader::load("resources/assets/shadow_test.fbx", meshData))
     {
         std::cerr << "Failed to load OBJ file" << std::endl;
         exit(EXIT_FAILURE);
@@ -32,7 +32,7 @@ bool Scene::initialize()
     }
 
     ImageLoader::ImageData diffuseTextureData;
-    if (!ImageLoader::load("../resources/textures/default.png", diffuseTextureData))
+    if (!ImageLoader::load("resources/textures/default.png", diffuseTextureData))
     {
         std::cerr << "Failed to load diffuse texture" << std::endl;
         return false;
@@ -40,7 +40,7 @@ bool Scene::initialize()
     m_diffuseTexture.initialize(diffuseTextureData);
 
     ImageLoader::ImageData normalMapData;
-    if (!ImageLoader::load("../resources/textures/normal.png", normalMapData))
+    if (!ImageLoader::load("resources/textures/normal.png", normalMapData))
     {
         std::cerr << "Failed to load normal map" << std::endl;
         return false;
@@ -67,32 +67,12 @@ void Scene::cleanup()
     m_mesh.cleanup();
 }
 
-Camera& Scene::getCamera() 
+Camera& Scene::getCamera()
 {
     return m_camera;
 }
 
-Light& Scene::getLight() 
+Light& Scene::getLight()
 {
     return m_light;
-}
-
-const Mesh& Scene::getMesh() 
-{
-    return m_mesh;
-}
-
-const Transform& Scene::getTransform() 
-{
-    return m_transform;
-}
-
-const Texture& Scene::getDiffuseTexture() 
-{
-    return m_diffuseTexture;
-}
-
-const Texture& Scene::getNormalMap() 
-{
-    return m_normalMap;
 }

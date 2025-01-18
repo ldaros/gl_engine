@@ -77,7 +77,7 @@ vec3 calculateLighting(vec3 diffuseColor, vec3 normal)
         float distance = length(fs_in.LightDirection_cameraspace);
         attenuation = 1.0 / (distance * distance);
     }
-    
+
     // Calculate lighting components
     vec3 ambient = materialAmbient * diffuseColor;
     vec3 diffuse = diffuseColor * lightColor * lightPower * max(dot(N, L), 0.0) * attenuation;

@@ -3,7 +3,7 @@
 int main() {
     Application app;
     
-    if (!app.initialize(1200, 900, "OG Engine")) {
+    if (!app.initialize(1920, 1080, "OG Engine")) {
         return EXIT_FAILURE;
     }
     

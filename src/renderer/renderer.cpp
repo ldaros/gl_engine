@@ -65,15 +65,15 @@ bool Renderer::setupShaders()
 {
     // Load and compile shaders
     if (!m_shader.init(
-            FileSystem::read("../resources/shaders/standard_vs.glsl"),
-            FileSystem::read("../resources/shaders/standard_fs.glsl"))) 
+            FileSystem::read("resources/shaders/standard_vs.glsl"),
+            FileSystem::read("resources/shaders/standard_fs.glsl"))) 
     {
         std::cerr << "Failed to initialize standard shader" << std::endl;
         return false;
     }
     if (!m_depthShader.init(
-            FileSystem::read("../resources/shaders/depth_vs.glsl"),
-            FileSystem::read("../resources/shaders/depth_fs.glsl"))) 
+            FileSystem::read("resources/shaders/depth_vs.glsl"),
+            FileSystem::read("resources/shaders/depth_fs.glsl"))) 
     {
         std::cerr << "Failed to initialize depth shader" << std::endl;
         return false;
