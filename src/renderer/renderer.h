@@ -3,9 +3,9 @@
 
 #include "shader.h"
 #include "framebuffer.h"
-#include "../scene/scene.h"
-#include "../scene/camera.h"
-#include "../ui/ui_manager.h"
+#include "scene/scene.h"
+#include "scene/camera.h"
+#include "ui/ui_manager.h"
 
 class Renderer {
 public:

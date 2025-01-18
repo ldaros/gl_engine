@@ -3,9 +3,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
-#include "../core/utils.h"
-#include "../core/window.h"
-#include "../core/file_system.h"
+#include "core/utils.h"
+#include "core/window.h"
+#include "core/file_system.h"
 
 bool Renderer::initialize()
 {

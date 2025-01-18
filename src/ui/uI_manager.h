@@ -4,7 +4,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "../scene/scene.h"
+#include "scene/scene.h"
 
 class UIManager {
 public:

@@ -63,4 +63,5 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${IMGUI_DIR}/backends
     vendor/assimp/include
     vendor/stb
+    ${CMAKE_SOURCE_DIR}/src
 )

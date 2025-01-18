@@ -1,9 +1,9 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "../renderer/mesh.h"
-#include "../renderer/texture.h"
-#include "../core/transform.h"
+#include "renderer/mesh.h"
+#include "renderer/texture.h"
+#include "core/transform.h"
 #include "camera.h"
 #include "light.h"
 

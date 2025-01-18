@@ -4,7 +4,7 @@
 #include <string>
 #include <GL/glew.h>
 
-#include "../core/image_loader.h"
+#include "core/image_loader.h"
 
 class Texture 
 {

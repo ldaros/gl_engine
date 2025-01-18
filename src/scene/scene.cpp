@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-#include "../core/utils.h"
-#include "../core/model_loader.h"
-#include "../core/image_loader.h"
+#include "core/utils.h"
+#include "core/model_loader.h"
+#include "core/image_loader.h"
 
 bool Scene::initialize() 
 {

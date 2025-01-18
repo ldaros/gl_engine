@@ -3,10 +3,10 @@
 
 #include <memory>
 
-#include "../renderer/renderer.h"
-#include "../core/window.h"
-#include "../scene/scene.h"
-#include "../ui/ui_manager.h"
+#include "renderer/renderer.h"
+#include "core/window.h"
+#include "scene/scene.h"
+#include "ui/ui_manager.h"
 
 class Application
 {
