@@ -6,20 +6,15 @@
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 
+#include "core/resource_manager.h"
+
 class Mesh 
 {
 public:
     Mesh();
     ~Mesh();
 
-    bool initialize(
-        const std::vector<glm::vec3> &vertices, 
-        const std::vector<glm::vec2> &UVs, 
-        const std::vector<glm::vec3> &normals, 
-        const std::vector<unsigned int> &indices,
-        const std::vector<glm::vec3> &tangents,
-        const std::vector<glm::vec3> &bitangents
-    );
+    bool initialize(const MeshData& meshData);
     void cleanup();
 
     // Render the mesh

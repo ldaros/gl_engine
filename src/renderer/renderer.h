@@ -14,7 +14,7 @@ public:
     void render(GLFWwindow* window, Scene& scene, Camera& camera);
     void setupFrame(int width, int height);
     void toggleWireframe();
-    
+
 private:
     bool initializeOpenGL();
     bool setupShaders();

@@ -8,16 +8,17 @@ Texture::Texture(): m_id(0) {}
 
 Texture::~Texture() 
 {
-    if (m_id)
+    if (m_id != 0)
     {
         glDeleteTextures(1, &m_id);
     }
 }
 
-bool Texture::initialize(ImageLoader::ImageData &image)
+bool Texture::initialize(const TextureData &image)
 {
     // Create OpenGL texture if it doesn't exist
-    if (!m_id) {
+    if (!m_id) 
+    {
         glGenTextures(1, &m_id);
     }
     
@@ -32,7 +33,8 @@ bool Texture::initialize(ImageLoader::ImageData &image)
     // Determine format based on number of channels
     GLint internalFormat;
     GLenum format;
-    switch (image.channels) {
+    switch (image.channels) 
+    {
         case 1:
             internalFormat = GL_R8;
             format = GL_RED;
@@ -66,3 +68,8 @@ bool Texture::initialize(ImageLoader::ImageData &image)
     return true;
 }
 
+void Texture::bind(unsigned int slot) const 
+{
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_2D, m_id);
+}

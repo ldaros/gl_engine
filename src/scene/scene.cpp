@@ -3,45 +3,34 @@
 #include <iostream>
 
 #include "core/utils.h"
-#include "core/model_loader.h"
-#include "core/image_loader.h"
+#include "core/resource_manager.h"
 
 bool Scene::initialize() 
 {
-    ModelLoader::MeshData meshData;
-    if (!ModelLoader::load("resources/assets/shadow_test.fbx", meshData))
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+
+    std::shared_ptr<MeshData> meshData = resourceManager.loadMesh("resources/assets/shadow_test.fbx");
+    if (!meshData)
     {
-        std::cerr << "Failed to load OBJ file" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-    
-    if (!m_mesh.initialize(
-        meshData.vertices,
-        meshData.uvs,
-        meshData.normals,
-        meshData.indices,
-        meshData.tangents,
-        meshData.bitangents))
-    {
-        std::cerr << "Failed to initialize mesh" << std::endl;
+        std::cerr << "Failed to load mesh" << std::endl;
         return false;
     }
+    m_mesh.initialize(*meshData);
 
-    ImageLoader::ImageData diffuseTextureData;
-    if (!ImageLoader::load("resources/textures/default.png", diffuseTextureData))
+    std::shared_ptr<TextureData> diffuseTextureData = resourceManager.loadTexture("resources/textures/default.png");
+    if (!diffuseTextureData)
     {
         std::cerr << "Failed to load diffuse texture" << std::endl;
         return false;
     }
-    m_diffuseTexture.initialize(diffuseTextureData);
+    m_diffuseTexture.initialize(*diffuseTextureData);
 
-    ImageLoader::ImageData normalMapData;
-    if (!ImageLoader::load("resources/textures/normal.png", normalMapData))
+    std::shared_ptr<TextureData> normalMapData = resourceManager.loadTexture("resources/textures/normal.png");
+    if (!normalMapData)
     {
-        std::cerr << "Failed to load normal map" << std::endl;
-        return false;
+        std::cerr << "Failed to load normal map texture" << std::endl;
     }
-    // m_normalMap.initialize(normalMapData);
+    m_normalMap.initialize(*normalMapData);
 
     m_camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f), -90.0f, 0.0f);
     m_camera.setRotation(0.0f, 0.0f);
