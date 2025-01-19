@@ -33,6 +33,12 @@ def get_args():
         help="Run the executable after building",
         action="store_true",
     )
+    parser.add_argument(
+        "--threads",
+        help="Number of threads to use for build (default: number of CPU cores)",
+        type=int,
+        default=os.cpu_count(),
+    )
     return parser.parse_args()
 
 args = get_args()
@@ -66,7 +72,7 @@ try:
     start_time = time.time()
     print("Building the project...")
     subprocess.run([
-        "cmake", "--build", ".", "--config", args.configuration
+        "cmake", "--build", ".", "--config", args.configuration, "--parallel", str(args.threads)
     ], check=True)
     end_time = time.time()
     print(f"Build completed in {end_time - start_time:.2f} seconds.")
