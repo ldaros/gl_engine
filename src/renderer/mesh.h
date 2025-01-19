@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 
 #include "core/resource_manager.h"
+#include "material.h"
 
 class Mesh 
 {
@@ -18,7 +19,7 @@ public:
     void cleanup();
 
     // Render the mesh
-    void draw(GLuint shaderProgram, GLuint textureID, GLuint normalMapID = 0) const;
+    void draw() const;
 
     unsigned int getIndexCount() const;
     unsigned int getVertexCount() const;

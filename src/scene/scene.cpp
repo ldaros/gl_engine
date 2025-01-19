@@ -4,6 +4,7 @@
 
 #include "core/utils.h"
 #include "core/resource_manager.h"
+#include "renderer/material.h"
 
 bool Scene::initialize() 
 {
@@ -17,20 +18,42 @@ bool Scene::initialize()
     }
     m_mesh.initialize(*meshData);
 
+    std::shared_ptr<ShaderData> shaderData = resourceManager.loadShader(
+        "resources/shaders/standard_vs.glsl",
+        "resources/shaders/standard_fs.glsl"
+    );
+    if (!shaderData)
+    {
+        std::cerr << "Failed to load shader" << std::endl;
+        return false;
+    }
+    m_shader = std::make_shared<Shader>();
+    if(!m_shader->init(shaderData->vertexCode, shaderData->fragmentCode))
+    {
+        std::cerr << "Failed to compile shader" << std::endl;
+        return false;
+    }
+
     std::shared_ptr<TextureData> diffuseTextureData = resourceManager.loadTexture("resources/textures/default.png");
     if (!diffuseTextureData)
     {
         std::cerr << "Failed to load diffuse texture" << std::endl;
         return false;
     }
-    m_diffuseTexture.initialize(*diffuseTextureData);
+    m_diffuseTexture = std::make_shared<Texture>();
+    m_diffuseTexture->initialize(*diffuseTextureData);
 
     std::shared_ptr<TextureData> normalMapData = resourceManager.loadTexture("resources/textures/normal.png");
     if (!normalMapData)
     {
         std::cerr << "Failed to load normal map texture" << std::endl;
     }
-    m_normalMap.initialize(*normalMapData);
+    m_normalMap = std::make_shared<Texture>();
+    m_normalMap->initialize(*normalMapData);
+
+    m_material.shader = m_shader;
+    m_material.diffuseTexture = m_diffuseTexture;
+    // m_material.normalMap = m_normalMap;
 
     m_camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f), -90.0f, 0.0f);
     m_camera.setRotation(0.0f, 0.0f);

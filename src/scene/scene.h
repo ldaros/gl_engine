@@ -3,6 +3,8 @@
 
 #include "renderer/mesh.h"
 #include "renderer/texture.h"
+#include "renderer/material.h"
+#include "renderer/shader.h"
 #include "core/transform.h"
 #include "camera.h"
 #include "light.h"
@@ -16,8 +18,7 @@ public:
     Light& getLight();
     Transform& getTransform();
     const Mesh& getMesh() const { return m_mesh; }
-    const Texture& getDiffuseTexture() const { return m_diffuseTexture; }
-    const Texture& getNormalMap() const { return m_normalMap; }
+    const Material& getMaterial() const { return m_material; }
 
     void cleanup();
 
@@ -26,8 +27,11 @@ private:
     Light m_light;
     Mesh m_mesh;
     Transform m_transform;
-    Texture m_diffuseTexture;
-    Texture m_normalMap;
+    Material m_material;
+    
+    std::shared_ptr<Texture> m_diffuseTexture;
+    std::shared_ptr<Texture> m_normalMap;
+    std::shared_ptr<Shader> m_shader;
 };
 
 #endif // SCENE_H

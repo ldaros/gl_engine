@@ -64,13 +64,6 @@ bool Renderer::initializeOpenGL()
 bool Renderer::setupShaders() 
 {
     // Load and compile shaders
-    if (!m_shader.init(
-            FileSystem::read("resources/shaders/standard_vs.glsl"),
-            FileSystem::read("resources/shaders/standard_fs.glsl"))) 
-    {
-        std::cerr << "Failed to initialize standard shader" << std::endl;
-        return false;
-    }
     if (!m_depthShader.init(
             FileSystem::read("resources/shaders/depth_vs.glsl"),
             FileSystem::read("resources/shaders/depth_fs.glsl"))) 
@@ -107,8 +100,8 @@ void Renderer::renderShadowMap(Scene& scene)
     m_depthShader.use();
     m_depthShader.setMat4("lightSpaceMatrix", m_lightSpaceMatrix);
     m_depthShader.setMat4("model", scene.getTransform().getModelMatrix());
-    
-    scene.getMesh().draw(m_depthShader.m_id, 0, 0);
+
+    scene.getMesh().draw();
     
     m_shadowMap.unbind();
 }
@@ -125,6 +118,8 @@ void Renderer::render(GLFWwindow* window, Scene& scene, Camera& camera) {
     const Mesh& mesh = scene.getMesh();
     const Transform& transform = scene.getTransform();
     const Light& light = scene.getLight();
+    const Material& material = scene.getMaterial();
+    const Shader& shader = *material.shader;
 
     // Render shadow map
     renderShadowMap(scene);
@@ -146,34 +141,48 @@ void Renderer::render(GLFWwindow* window, Scene& scene, Camera& camera) {
     glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(view * model)));
 
     // Use shader and set uniforms
-    m_shader.use();
-    m_shader.setMat4("modelViewProjection", projection * view * model);
-    m_shader.setMat4("viewMatrix", view);
-    m_shader.setMat4("modelMatrix", model);
-    m_shader.setMat3("normalMatrix", normalMatrix);
-    m_shader.setMat4("lightSpaceMatrix", m_lightSpaceMatrix);
+    shader.use();
+    shader.setMat4("modelViewProjection", projection * view * model);
+    shader.setMat4("viewMatrix", view);
+    shader.setMat4("modelMatrix", model);
+    shader.setMat3("normalMatrix", normalMatrix);
+    shader.setMat4("lightSpaceMatrix", m_lightSpaceMatrix);
 
     // Set light uniforms
-    m_shader.setVec3("lightPosition", light.getPosition());
-    m_shader.setFloat("lightPower", light.getPower());
-    m_shader.setVec3("lightColor", light.getColor());
-    m_shader.setBool("isDirectionalLight", light.getType() == LightType::DIRECTIONAL);
+    shader.setVec3("lightPosition", light.getPosition());
+    shader.setFloat("lightPower", light.getPower());
+    shader.setVec3("lightColor", light.getColor());
+    shader.setBool("isDirectionalLight", light.getType() == LightType::DIRECTIONAL);
 
     if (scene.getLight().getType() == LightType::DIRECTIONAL)
     {
-        m_shader.setVec3("lightPosition", -scene.getLight().getDirection() * 1000.0f);
+        shader.setVec3("lightPosition", -scene.getLight().getDirection() * 1000.0f);
     }
     else
     {
-        m_shader.setVec3("lightPosition", scene.getLight().getPosition());
+        shader.setVec3("lightPosition", scene.getLight().getPosition());
+    }
+
+    // bind textures
+    if (material.diffuseTexture)
+    {
+        material.diffuseTexture->bind(0);
+        shader.setInt("textureDiffuse", 0);
+    }
+     
+    if (material.normalMap)
+    {
+        material.normalMap->bind(1);
+        shader.setBool("useNormalMap", true);
+        shader.setInt("textureNormal", 1);
     }
 
     // Bind shadow map
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, m_shadowMap.getDepthTexture());
-    m_shader.setInt("shadowMap", 2);
+    shader.setInt("shadowMap", 2);
 
-    mesh.draw(m_shader.m_id, scene.getDiffuseTexture().getID(), scene.getNormalMap().getID());
+    mesh.draw();
 }
 
 void Renderer::toggleWireframe() {

@@ -25,7 +25,6 @@ private:
 
     void renderShadowMap(Scene& scene);
 
-    Shader m_shader;
     Shader m_depthShader;
     Framebuffer m_shadowMap{2048, 2048, true, false};
     glm::mat4 m_lightSpaceMatrix;

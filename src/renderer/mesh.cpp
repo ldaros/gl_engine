@@ -80,35 +80,12 @@ void Mesh::cleanup()
     glDeleteBuffers(1, &ebo);
 }
 
-void Mesh::draw(GLuint shaderProgram, GLuint textureID, GLuint normalMapID) const
+void Mesh::draw() const
 {
-    // Use the shader program
-    glUseProgram(shaderProgram);
-
-    // Bind the diffuse texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glUniform1i(glGetUniformLocation(shaderProgram, "textureDiffuse"), 0);
-
-    // Handle normal map
-    bool useNormalMap = normalMapID != 0;
-    glUniform1i(glGetUniformLocation(shaderProgram, "useNormalMap"), useNormalMap);
-
-    if (useNormalMap)
-    {
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, normalMapID);
-        glUniform1i(glGetUniformLocation(shaderProgram, "textureNormal"), 1);
-    }
-
     // Draw the mesh
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
-
-    // Cleanup
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 unsigned int Mesh::getIndexCount() const
