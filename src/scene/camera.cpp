@@ -1,72 +1,117 @@
 #include "camera.h"
+#include <algorithm>
 
-Camera::Camera() {}
-
-Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
-    : Front(glm::vec3(0.0f, 0.0f, -1.0f))
-    , MovementSpeed(2.5f)
-    , MouseSensitivity(0.1f)
-    , Zoom(45.0f)
+Camera::Camera()
+    : m_movementSpeed(2.5f)
+    , m_mouseSensitivity(0.1f)
+    , m_zoom(45.0f)
 {
-    Position = position;
-    WorldUp = up;
-    Yaw = yaw;
-    Pitch = pitch;
-    updateCameraVectors();
+    m_transform.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
+    m_transform.setRotation(-90.0f, 0.0f, 0.0f); // Default looking toward -Z
 }
 
-Camera::~Camera() {}
-
-glm::mat4 Camera::getViewMatrix()
+Camera::Camera(const glm::vec3& position, float yaw, float pitch)
+    : m_movementSpeed(2.5f)
+    , m_mouseSensitivity(0.1f)
+    , m_zoom(45.0f)
 {
-    return glm::lookAt(Position, Position + Front, Up);
+    m_transform.setPosition(position);
+    m_transform.setRotation(pitch, yaw, 0.0f);
 }
 
-void Camera::processKeyboard(CameraMovement direction, float deltaTime)
+glm::mat4 Camera::getViewMatrix() const 
 {
-    float velocity = MovementSpeed * deltaTime;
-    if (direction == FORWARD)
-        Position += Front * velocity;
-    if (direction == BACKWARD)
-        Position -= Front * velocity;
-    if (direction == LEFT)
-        Position -= Right * velocity;
-    if (direction == RIGHT)
-        Position += Right * velocity;
+    return glm::lookAt(
+        m_transform.getPosition(),
+        m_transform.getPosition() + m_transform.forward(),
+        m_transform.up()
+    );
 }
 
-void Camera::processMouseMovement(float xoffset, float yoffset, bool constrainPitch)
+void Camera::processKeyboard(CameraMovement direction, float deltaTime) 
 {
-    xoffset *= MouseSensitivity;
-    yoffset *= MouseSensitivity;
+    float velocity = m_movementSpeed * deltaTime;
+    glm::vec3 position = m_transform.getPosition();
 
-    Yaw   += xoffset;
-    Pitch += yoffset;
-
-    // Make sure that when pitch is out of bounds, screen doesn't get flipped
-    if (constrainPitch)
+    switch (direction)
     {
-        if (Pitch > 89.0f)
-            Pitch = 89.0f;
-        if (Pitch < -89.0f)
-            Pitch = -89.0f;
+        case CameraMovement::FORWARD:
+            position += m_transform.forward() * velocity;
+            break;
+        case CameraMovement::BACKWARD:
+            position -= m_transform.forward() * velocity;
+            break;
+        case CameraMovement::LEFT:
+            position -= m_transform.right() * velocity;
+            break;
+        case CameraMovement::RIGHT:
+            position += m_transform.right() * velocity;
+            break;
+        case CameraMovement::UP:
+            position += m_transform.up() * velocity;
+            break;
+        case CameraMovement::DOWN:
+            position -= m_transform.up() * velocity;
+            break;
     }
 
-    // Update Front, Right and Up Vectors using the updated Euler angles
-    updateCameraVectors();
+    m_transform.setPosition(position);
 }
 
-void Camera::updateCameraVectors()
+void Camera::processMouseMovement(float xOffset, float yOffset, bool constrainPitch)
 {
-    // Calculate the new Front vector
-    glm::vec3 front;
-    front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-    front.y = sin(glm::radians(Pitch));
-    front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-    Front = glm::normalize(front);
+    xOffset *= m_mouseSensitivity;
+    yOffset *= m_mouseSensitivity;
 
-    // Also re-calculate the Right and Up vector
-    // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-    Right = glm::normalize(glm::cross(Front, WorldUp));  
-    Up    = glm::normalize(glm::cross(Right, Front));
+    // Update rotation angles
+    m_rotationAngles.x += xOffset; // Horizontal rotation
+    m_rotationAngles.y += yOffset; // Vertical rotation
+    
+    // Constrain the vertical rotation
+    m_rotationAngles.y = std::clamp(m_rotationAngles.y, MIN_PITCH, MAX_PITCH);
+
+    // Create quaternions for horizontal and vertical rotations
+    glm::quat horizontalQuat = glm::angleAxis(
+        glm::radians(m_rotationAngles.x),
+        glm::vec3(0.0f, 1.0f, 0.0f)  // Rotate around Y axis
+    );
+    
+    glm::quat verticalQuat = glm::angleAxis(
+        glm::radians(m_rotationAngles.y),
+        glm::vec3(1.0f, 0.0f, 0.0f)  // Rotate around X axis
+    );
+
+    // Combine rotations and set the transform's rotation
+    m_transform.setRotationQuaternion(horizontalQuat * verticalQuat);
+}
+
+void Camera::processMouseScroll(float yOffset)
+{
+    setZoom(m_zoom - yOffset);
+}
+
+void Camera::setPosition(const glm::vec3& position)
+{
+    m_transform.setPosition(position);
+}
+
+void Camera::setRotation(float pitch, float yaw)
+{
+    m_transform.setRotation(pitch, yaw, 0.0f);
+}
+
+void Camera::setZoom(float value)
+{
+    m_zoom = std::clamp(value, MIN_ZOOM, MAX_ZOOM);
+}
+
+void Camera::lookAt(const glm::vec3& target) 
+{
+    glm::vec3 direction = glm::normalize(target - m_transform.getPosition());
+    
+    // Calculate pitch and yaw from direction vector
+    float pitch = glm::degrees(asin(direction.y));
+    float yaw = glm::degrees(atan2(direction.z, direction.x));
+    
+    m_transform.setRotation(pitch, yaw, 0.0f);
 }

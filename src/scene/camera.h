@@ -1,53 +1,65 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include "core/transform.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-enum CameraMovement
+enum class CameraMovement
 {
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    UP,
+    DOWN
 };
 
 class Camera 
 {
 public:
     Camera();
+    Camera(const glm::vec3& position, float yaw = -90.0f, float pitch = 0.0f);
 
-    glm::vec3 Position;
-    glm::vec3 Front;
-    glm::vec3 Up;
-    glm::vec3 Right;
-    glm::vec3 WorldUp;
+    // Core functionality
+    glm::mat4 getViewMatrix() const;
+    glm::vec3 getPosition() const { return m_transform.getPosition(); }
+    glm::vec3 getForward() const { return m_transform.forward(); }
+    glm::vec3 getRight() const { return m_transform.right(); }
+    glm::vec3 getUp() const { return m_transform.up(); }
 
-    // Euler Angles
-    float Yaw;
-    float Pitch;
-
-    // Camera options
-    float MovementSpeed;
-    float MouseSensitivity;
-    float Zoom;
-
-    // Constructor with vectors
-    Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch);
-    ~Camera();
-
-    // Processes input received from any keyboard-like input system
+    // Camera control
     void processKeyboard(CameraMovement direction, float deltaTime);
+    void processMouseMovement(float xOffset, float yOffset, bool constrainPitch = true);
+    void processMouseScroll(float yOffset);
 
-    // Processes input received from a mouse input system
-    void processMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
+    // Camera properties
+    void setPosition(const glm::vec3& position);
+    void setRotation(float pitch, float yaw);
+    
+    // Camera parameters
+    void setMovementSpeed(float speed) { m_movementSpeed = speed; }
+    void setMouseSensitivity(float sensitivity) { m_mouseSensitivity = sensitivity; }
+    void setZoom(float value);
+    float getZoom() const { return m_zoom; }
 
-    // Returns the view matrix calculated using Euler Angles and the LookAt Matrix
-    glm::mat4 getViewMatrix();
+    // Utility functions
+    void lookAt(const glm::vec3& target);
 
 private:
-    // Calculates the front vector from the Camera's Euler Angles
-    void updateCameraVectors();
+    Transform m_transform;
+    glm::vec2 m_rotationAngles{0.0f};
+    
+    // Camera parameters
+    float m_movementSpeed;
+    float m_mouseSensitivity;
+    float m_zoom;
+
+    // Constraints
+    static constexpr float MIN_ZOOM = 1.0f;
+    static constexpr float MAX_ZOOM = 45.0f;
+    static constexpr float MIN_PITCH = -89.0f;
+    static constexpr float MAX_PITCH = 89.0f;
 };
 
 #endif // CAMERA_H

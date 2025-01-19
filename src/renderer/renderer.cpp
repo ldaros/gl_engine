@@ -136,7 +136,7 @@ void Renderer::render(GLFWwindow* window, Scene& scene, Camera& camera) {
 
     // Calculate matrices
     glm::mat4 projection = glm::perspective(
-        glm::radians(camera.Zoom),
+        glm::radians(camera.getZoom()),
         float(width) / float(height),
         0.1f,
         100.0f

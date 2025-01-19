@@ -113,19 +113,27 @@ void Application::update(float deltaTime)
         // Handle keyboard inputs to move the camera
         if (Input::isKeyDown(Key::W)) 
         {
-            camera.processKeyboard(FORWARD, deltaTime);
+            camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
         }
         if (Input::isKeyDown(Key::S))
         {
-            camera.processKeyboard(BACKWARD, deltaTime);
+            camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
         }
         if (Input::isKeyDown(Key::D))
         {
-            camera.processKeyboard(RIGHT, deltaTime);
+            camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
         }
         if (Input::isKeyDown(Key::A))
         {
-            camera.processKeyboard(LEFT, deltaTime);
+            camera.processKeyboard(CameraMovement::LEFT, deltaTime);
+        }
+        if (Input::isKeyDown(Key::SPACE))
+        {
+            camera.processKeyboard(CameraMovement::UP, deltaTime);
+        }
+        if (Input::isKeyDown(Key::LEFT_SHIFT))
+        {
+            camera.processKeyboard(CameraMovement::DOWN, deltaTime);
         }
 
         // Handle mouse movement
@@ -136,7 +144,7 @@ void Application::update(float deltaTime)
             m_lastMouseY = mousePosition.y;
             m_firstMouse = false;
         }
-        float xOffset = mousePosition.x - m_lastMouseX;
+        float xOffset = m_lastMouseX - mousePosition.x;
         float yOffset = m_lastMouseY - mousePosition.y;
         m_lastMouseX = mousePosition.x;
         m_lastMouseY = mousePosition.y;

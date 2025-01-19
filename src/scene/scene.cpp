@@ -43,7 +43,8 @@ bool Scene::initialize()
     }
     // m_normalMap.initialize(normalMapData);
 
-    m_camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f);
+    m_camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f), -90.0f, 0.0f);
+    m_camera.setRotation(0.0f, 0.0f);
 
     m_light = Light();
     m_light.setType(LightType::DIRECTIONAL);
