@@ -65,7 +65,7 @@ bool Scene::initialize()
     m_light.setColor(glm::vec3(1.0f, 1.0f, 1.0f));
     m_light.setPower(1.0f);
 
-    m_transform.setScale(glm::vec3(0.1f));
+    m_transform.scale = glm::vec3(0.1f);
     
     return true;
 }

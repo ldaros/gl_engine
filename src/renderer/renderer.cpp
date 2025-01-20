@@ -99,7 +99,7 @@ void Renderer::renderShadowMap(Scene& scene)
     
     m_depthShader.use();
     m_depthShader.setMat4("lightSpaceMatrix", m_lightSpaceMatrix);
-    m_depthShader.setMat4("model", scene.getTransform().getModelMatrix());
+    m_depthShader.setMat4("model", getModelMatrix(scene.getTransform()));
 
     scene.getMesh().draw();
     
@@ -137,7 +137,7 @@ void Renderer::render(GLFWwindow* window, Scene& scene, Camera& camera) {
         100.0f
     );
     glm::mat4 view = camera.getViewMatrix();
-    glm::mat4 model = transform.getModelMatrix();
+    glm::mat4 model = getModelMatrix(transform);
     glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(view * model)));
 
     // Use shader and set uniforms

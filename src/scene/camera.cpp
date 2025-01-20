@@ -6,8 +6,8 @@ Camera::Camera()
     , m_mouseSensitivity(0.1f)
     , m_zoom(45.0f)
 {
-    m_transform.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
-    m_transform.setRotation(-90.0f, 0.0f, 0.0f); // Default looking toward -Z
+    m_transform.position = glm::vec3(0.0f, 0.0f, 3.0f); 
+    m_transform.rotation = glm::vec3(glm::radians(-90.0f), 0.0f, 0.0f); // Default looking toward -Z
 }
 
 Camera::Camera(const glm::vec3& position, float yaw, float pitch)
@@ -15,47 +15,47 @@ Camera::Camera(const glm::vec3& position, float yaw, float pitch)
     , m_mouseSensitivity(0.1f)
     , m_zoom(45.0f)
 {
-    m_transform.setPosition(position);
-    m_transform.setRotation(pitch, yaw, 0.0f);
+    m_transform.position = position;
+    m_transform.rotation = glm::vec3(glm::radians(pitch), glm::radians(yaw), 0.0f);
 }
 
 glm::mat4 Camera::getViewMatrix() const 
 {
     return glm::lookAt(
-        m_transform.getPosition(),
-        m_transform.getPosition() + m_transform.forward(),
-        m_transform.up()
+        m_transform.position,
+        m_transform.position + forward(m_transform),
+        up(m_transform)
     );
 }
 
 void Camera::processKeyboard(CameraMovement direction, float deltaTime) 
 {
     float velocity = m_movementSpeed * deltaTime;
-    glm::vec3 position = m_transform.getPosition();
+    glm::vec3 position = m_transform.position;
 
     switch (direction)
     {
         case CameraMovement::FORWARD:
-            position += m_transform.forward() * velocity;
+            position += forward(m_transform) * velocity;
             break;
         case CameraMovement::BACKWARD:
-            position -= m_transform.forward() * velocity;
+            position -= forward(m_transform) * velocity;
             break;
         case CameraMovement::LEFT:
-            position -= m_transform.right() * velocity;
+            position -= right(m_transform) * velocity;
             break;
         case CameraMovement::RIGHT:
-            position += m_transform.right() * velocity;
+            position += right(m_transform) * velocity;
             break;
         case CameraMovement::UP:
-            position += m_transform.up() * velocity;
+            position += up(m_transform) * velocity;
             break;
         case CameraMovement::DOWN:
-            position -= m_transform.up() * velocity;
+            position -= up(m_transform) * velocity;
             break;
     }
 
-    m_transform.setPosition(position);
+    m_transform.position = position;
 }
 
 void Camera::processMouseMovement(float xOffset, float yOffset, bool constrainPitch)
@@ -82,7 +82,7 @@ void Camera::processMouseMovement(float xOffset, float yOffset, bool constrainPi
     );
 
     // Combine rotations and set the transform's rotation
-    m_transform.setRotationQuaternion(horizontalQuat * verticalQuat);
+    m_transform.rotation = horizontalQuat * verticalQuat;
 }
 
 void Camera::processMouseScroll(float yOffset)
@@ -92,12 +92,12 @@ void Camera::processMouseScroll(float yOffset)
 
 void Camera::setPosition(const glm::vec3& position)
 {
-    m_transform.setPosition(position);
+    m_transform.position = position;
 }
 
 void Camera::setRotation(float pitch, float yaw)
 {
-    m_transform.setRotation(pitch, yaw, 0.0f);
+    m_transform.rotation = glm::vec3(glm::radians(pitch), glm::radians(yaw), 0.0f);
 }
 
 void Camera::setZoom(float value)
@@ -107,11 +107,11 @@ void Camera::setZoom(float value)
 
 void Camera::lookAt(const glm::vec3& target) 
 {
-    glm::vec3 direction = glm::normalize(target - m_transform.getPosition());
+    glm::vec3 direction = glm::normalize(target - m_transform.position);
     
     // Calculate pitch and yaw from direction vector
     float pitch = glm::degrees(asin(direction.y));
     float yaw = glm::degrees(atan2(direction.z, direction.x));
     
-    m_transform.setRotation(pitch, yaw, 0.0f);
+    m_transform.rotation = glm::vec3(glm::radians(pitch), glm::radians(yaw), 0.0f);
 }

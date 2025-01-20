@@ -23,10 +23,10 @@ public:
 
     // Core functionality
     glm::mat4 getViewMatrix() const;
-    glm::vec3 getPosition() const { return m_transform.getPosition(); }
-    glm::vec3 getForward() const { return m_transform.forward(); }
-    glm::vec3 getRight() const { return m_transform.right(); }
-    glm::vec3 getUp() const { return m_transform.up(); }
+    glm::vec3 getPosition() const { return m_transform.position; }
+    glm::vec3 getForward() const { return forward(m_transform); }
+    glm::vec3 getRight() const { return right(m_transform); }
+    glm::vec3 getUp() const { return up(m_transform); }
 
     // Camera control
     void processKeyboard(CameraMovement direction, float deltaTime);

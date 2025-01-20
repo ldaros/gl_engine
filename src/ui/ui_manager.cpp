@@ -161,27 +161,22 @@ void UIManager::renderTransformWindow(Scene& scene)
     if (ImGui::Begin("Transform", &m_showTransformWindow, ImGuiWindowFlags_AlwaysAutoResize))
     {
         Transform& transform = scene.getTransform();
-        glm::vec3 position = transform.getPosition();
-        if (ImGui::DragFloat3("Position", glm::value_ptr(position), 0.1f))
+        
+        ImGui::DragFloat3("Position", glm::value_ptr(transform.position), 0.1f);
+        
+        glm::vec3 rotationDegrees = glm::degrees(glm::eulerAngles(transform.rotation));
+        if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotationDegrees), 0.1f))
         {
-            transform.setPosition(position);
+            transform.rotation = glm::radians(rotationDegrees);
         }
         
-        glm::vec3 rotation = transform.getRotation();
-        if (ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 0.1f))
-        {
-            transform.setRotation(rotation);
-        }
-        
-        glm::vec3 scale = transform.getScale();
-        if (ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.1f))
-        {
-            transform.setScale(scale);
-        }
+        ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.1f);
 
         if (ImGui::Button("Reset"))
         {
-            transform.reset();
+            transform.position = glm::vec3(0.0f);
+            transform.rotation = glm::vec3(0.0f);
+            transform.scale = glm::vec3(1.0f);
         }
     }
     ImGui::End();
