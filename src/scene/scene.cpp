@@ -34,22 +34,18 @@ bool Scene::initialize()
         return false;
     }
 
-    std::shared_ptr<TextureData> diffuseTextureData = resourceManager.loadTexture("resources/textures/default.png");
-    if (!diffuseTextureData)
+    m_diffuseTexture = resourceManager.loadTexture("resources/textures/default.png");
+    if (!m_diffuseTexture)
     {
         std::cerr << "Failed to load diffuse texture" << std::endl;
         return false;
     }
-    m_diffuseTexture = std::make_shared<Texture>();
-    m_diffuseTexture->initialize(*diffuseTextureData);
 
-    std::shared_ptr<TextureData> normalMapData = resourceManager.loadTexture("resources/textures/normal.png");
-    if (!normalMapData)
+    m_normalMap = resourceManager.loadTexture("resources/textures/normal.png");
+    if (!m_normalMap)
     {
         std::cerr << "Failed to load normal map texture" << std::endl;
     }
-    m_normalMap = std::make_shared<Texture>();
-    m_normalMap->initialize(*normalMapData);
 
     m_material.shader = m_shader;
     m_material.diffuseTexture = m_diffuseTexture;

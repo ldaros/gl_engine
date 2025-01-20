@@ -3,23 +3,10 @@
 
 #include <GL/glew.h>
 
-
 #include "core/resource_manager.h"
 
-class Texture 
-{
-public:
-    Texture();
-    ~Texture();
-
-    bool initialize(const TextureData& texture);
-    void bind(unsigned int slot = 0) const;
-
-    GLuint getID() const { return m_id; }
-    bool isValid() const { return m_id != 0; }
-
-private:
-    GLuint m_id;
-};
+bool initializeTexture(Texture& texture);
+void bindTexture(const Texture&  texture, unsigned int slot = 0);
+void cleanupTexture(Texture& texture);
 
 #endif // TEXTURE_H

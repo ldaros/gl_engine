@@ -10,7 +10,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-std::shared_ptr<TextureData> ResourceManager::loadTexture(const std::string& path)
+std::shared_ptr<Texture> ResourceManager::loadTexture(const std::string& path)
 {   
     auto it = m_textures.find(path);
     if (it != m_textures.end()) 
@@ -18,13 +18,13 @@ std::shared_ptr<TextureData> ResourceManager::loadTexture(const std::string& pat
         return it->second;
     }
 
-    TextureData texture;
+    Texture texture;
     if (!loadTextureFromFile(path, &texture)) 
     {
         return nullptr;
     }
 
-    std::shared_ptr<TextureData> sharedTexture = std::make_shared<TextureData>(texture);
+    std::shared_ptr<Texture> sharedTexture = std::make_shared<Texture>(texture);
     m_textures[path] = sharedTexture;
     return sharedTexture;
 }
@@ -74,7 +74,7 @@ void ResourceManager::cleanup()
     m_shaders.clear();
 }
 
-bool ResourceManager::loadTextureFromFile(const std::string& path, TextureData* texture) 
+bool ResourceManager::loadTextureFromFile(const std::string& path, Texture* texture) 
 {
     // Clear any existing data
     texture->pixels.clear();

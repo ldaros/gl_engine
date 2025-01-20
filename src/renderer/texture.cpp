@@ -4,25 +4,15 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-Texture::Texture(): m_id(0) {}
-
-Texture::~Texture() 
-{
-    if (m_id != 0)
-    {
-        glDeleteTextures(1, &m_id);
-    }
-}
-
-bool Texture::initialize(const TextureData &image)
+bool initializeTexture(Texture& texture)
 {
     // Create OpenGL texture if it doesn't exist
-    if (!m_id) 
+    if (!texture.glTextureId)
     {
-        glGenTextures(1, &m_id);
+        glGenTextures(1, &texture.glTextureId);
     }
     
-    glBindTexture(GL_TEXTURE_2D, m_id);
+    glBindTexture(GL_TEXTURE_2D, texture.glTextureId);
 
     // Set texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -33,7 +23,7 @@ bool Texture::initialize(const TextureData &image)
     // Determine format based on number of channels
     GLint internalFormat;
     GLenum format;
-    switch (image.channels) 
+    switch (texture.channels) 
     {
         case 1:
             internalFormat = GL_R8;
@@ -52,15 +42,15 @@ bool Texture::initialize(const TextureData &image)
             format = GL_RGBA;
             break;
         default:
-            std::cerr << "Unsupported number of channels: " << image.channels << std::endl;
+            std::cerr << "Unsupported number of channels: " << texture.channels << std::endl;
             return false;
     }
 
     // Upload texture data
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, 
-                 image.width, image.height, 0,
+                 texture.width, texture.height, 0,
                  format, GL_UNSIGNED_BYTE, 
-                 image.pixels.data());
+                 texture.pixels.data());
 
     // Generate mipmaps
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -68,8 +58,13 @@ bool Texture::initialize(const TextureData &image)
     return true;
 }
 
-void Texture::bind(unsigned int slot) const 
+void bindTexture(const Texture&  texture, unsigned int slot)
 {
     glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_2D, m_id);
+    glBindTexture(GL_TEXTURE_2D, texture.glTextureId);
+}
+
+void cleanupTexture(Texture& texture)
+{
+    glDeleteTextures(1, &texture.glTextureId);
 }

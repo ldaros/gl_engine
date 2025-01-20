@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "shader.h"
-#include "texture.h"
+#include "core/resource_manager.h"
 
 struct Material 
 {

@@ -166,13 +166,23 @@ void Renderer::render(GLFWwindow* window, Scene& scene, Camera& camera) {
     // bind textures
     if (material.diffuseTexture)
     {
-        material.diffuseTexture->bind(0);
+        if (!material.diffuseTexture->isValid())
+        {
+            initializeTexture(*material.diffuseTexture);
+        }
+        
+        bindTexture(*material.diffuseTexture, 0);
         shader.setInt("textureDiffuse", 0);
     }
      
     if (material.normalMap)
     {
-        material.normalMap->bind(1);
+        if (!material.normalMap->isValid())
+        {
+            initializeTexture(*material.normalMap);
+        }
+
+        bindTexture(*material.normalMap, 1);
         shader.setBool("useNormalMap", true);
         shader.setInt("textureNormal", 1);
     }
