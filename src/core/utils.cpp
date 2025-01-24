@@ -1,7 +1,44 @@
 #include "utils.h"
 
-#include <glm/glm.hpp>
-#include <vector>
+glm::mat4 getModelMatrix(const TransformComponent& transform)
+{
+    glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), transform.position);
+    glm::mat4 rotationMatrix = glm::toMat4(transform.rotation);
+    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), transform.scale);
+    
+    return translationMatrix * rotationMatrix * scaleMatrix;
+}
+
+void translate(TransformComponent& transform, const glm::vec3& translation) 
+{
+    transform.position += translation;
+}
+
+void rotate(TransformComponent& transform, const glm::vec3& eulerAngles) 
+{
+    glm::vec3 radians = glm::radians(eulerAngles);    
+    transform.rotation = glm::quat(radians);
+}
+
+void scaleUniform(TransformComponent& transform, float uniformScale)
+{
+    transform.scale = glm::vec3(uniformScale);
+}
+
+glm::vec3 forward(const TransformComponent& transform)
+{
+    return transform.rotation * glm::vec3(0.0f, 0.0f, -1.0f);
+}
+
+glm::vec3 right(const TransformComponent& transform)
+{
+    return transform.rotation * glm::vec3(1.0f, 0.0f, 0.0f);
+}
+
+glm::vec3 up(const TransformComponent& transform)
+{
+    return transform.rotation * glm::vec3(0.0f, 1.0f, 0.0f);
+}
 
 bool calculateTangents(
     const std::vector<glm::vec3> &vertices,

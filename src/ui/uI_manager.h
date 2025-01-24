@@ -14,20 +14,12 @@ public:
     void render(Scene& scene);
     void newFrame();
     
-    void toggleLightingWindow();
-    void togglePerformanceWindow();
-    void toggleTransformWindow();
-
 private:
-    void renderMainOverlay(Scene& scene);
-    void renderLightingWindow(Scene& scene);
-    void renderPerformanceWindow();
-    void renderTransformWindow(Scene& scene);
+    void renderPerformanceOverlay();
+    void renderEntityInfo(Scene& scene);
     void renderFrame();
 
-    bool m_showLightingWindow = false;
-    bool m_showPerformanceWindow = false;
-    bool m_showTransformWindow = false;
+    entt::entity m_selectedEntity = entt::null;
 };
 
 #endif // UI_MANAGER_H
