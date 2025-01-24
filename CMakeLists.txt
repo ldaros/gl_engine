@@ -48,6 +48,9 @@ set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
 set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
 add_subdirectory(vendor/assimp)
 
+# EnTT
+add_subdirectory(vendor/entt)
+
 # Create the executable
 add_executable(${PROJECT_NAME} src/main.cpp ${CPP_SOURCES} ${HEADER_FILES} ${IMGUI_SOURCES} vendor/stb/stb_image.cpp)
 
@@ -63,5 +66,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${IMGUI_DIR}/backends
     vendor/assimp/include
     vendor/stb
+    vendor/entt/src
     ${CMAKE_SOURCE_DIR}/src
 )
