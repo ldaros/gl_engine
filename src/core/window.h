@@ -1,25 +1,28 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#pragma once
 
+#include <utility>
+#include <string>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+namespace Engine {
 
 class Window 
 {
 public:
-    Window(int width, int height, const char* title);
+    Window(uint32_t width, uint32_t height, const std::string& title);
     ~Window();
 
-    bool shouldClose();
-    void swapBuffers();
-    void pollEvents();
-    GLFWwindow* getHandle();
-    void getFramebufferSize(int& width, int& height);
+    bool shouldClose() const;
+    void swapBuffers() const;
+    void pollEvents() const;
+    
+    GLFWwindow* getHandle() const;
+    std::pair<uint32_t, uint32_t> getFramebufferSize() const;
 
 private:
     GLFWwindow* m_window;
     static void errorCallback(int error, const char* description);
 };
 
-
-#endif // WINDOW_H
+}

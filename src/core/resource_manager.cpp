@@ -4,77 +4,52 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
-
-#include "stb_image.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include "stb_image.h"
 
-std::shared_ptr<Texture> ResourceManager::loadTexture(const std::string& path)
+namespace Engine {
+
+std::shared_ptr<Image> ResourceManager::loadTexture(const std::string& path)
 {   
-    auto it = m_textures.find(path);
-    if (it != m_textures.end()) 
-    {
-        return it->second;
-    }
-
-    Texture texture;
+    Image texture;
     if (!loadTextureFromFile(path, &texture)) 
     {
         return nullptr;
     }
 
-    std::shared_ptr<Texture> sharedTexture = std::make_shared<Texture>(texture);
-    m_textures[path] = sharedTexture;
+    UUID uuid = UUID_generate();
+    texture.uuid = uuid;
+
+    std::shared_ptr<Image> sharedTexture = std::make_shared<Image>(texture);
+    m_textures[uuid] = sharedTexture;
     return sharedTexture;
 }
 
 std::shared_ptr<MeshData> ResourceManager::loadMesh(const std::string& path)
 {
-    auto it = m_meshes.find(path);
-    if (it != m_meshes.end()) 
-    {
-        return it->second;
-    }
-
     MeshData mesh;
     if (!loadMeshFromFile(path, &mesh)) 
     {
         return nullptr;
     }
 
+    UUID uuid = UUID_generate();
+    mesh.uuid = uuid;
+
     std::shared_ptr<MeshData> sharedMesh = std::make_shared<MeshData>(mesh);
-    m_meshes[path] = sharedMesh;
+    m_meshes[uuid] = sharedMesh;
     return sharedMesh;
-}
-
-std::shared_ptr<ShaderData> ResourceManager::loadShader(const std::string& vertexPath, const std::string& fragmentPath)
-{
-    auto it = m_shaders.find(vertexPath);
-    if (it != m_shaders.end()) 
-    {
-        return it->second;
-    }
-
-    ShaderData shader;
-    if (!loadShaderFromFiles(vertexPath, fragmentPath, &shader)) 
-    {
-        return nullptr;
-    }
-    
-    std::shared_ptr<ShaderData> sharedShader = std::make_shared<ShaderData>(shader);
-    m_shaders[vertexPath] = sharedShader;
-    return sharedShader;
 }
 
 void ResourceManager::cleanup() 
 {
     m_textures.clear();
     m_meshes.clear();
-    m_shaders.clear();
 }
 
-bool ResourceManager::loadTextureFromFile(const std::string& path, Texture* texture) 
+bool ResourceManager::loadTextureFromFile(const std::string& path, Image* texture) 
 {
     // Clear any existing data
     texture->pixels.clear();
@@ -86,7 +61,7 @@ bool ResourceManager::loadTextureFromFile(const std::string& path, Texture* text
     int width, height, channels;
     stbi_set_flip_vertically_on_load(true);  // Flip images for OpenGL
     
-    unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+    auto data = stbi_load(path.c_str(), &width, &height, &channels, 0);
     
     if (!data) 
     {
@@ -143,7 +118,7 @@ bool ResourceManager::loadMeshFromFile(const std::string& path, MeshData* mesh)
         mesh->indices.reserve(aiMesh->mNumFaces * 3);
 
         // Process vertices
-        for (unsigned int i = 0; i < aiMesh->mNumVertices; i++) 
+        for (uint32_t i = 0; i < aiMesh->mNumVertices; i++) 
         {
             // Vertices
             mesh->vertices.push_back(glm::vec3(
@@ -193,10 +168,10 @@ bool ResourceManager::loadMeshFromFile(const std::string& path, MeshData* mesh)
         }
 
         // Process indices
-        for (unsigned int i = 0; i < aiMesh->mNumFaces; i++) 
+        for (uint32_t i = 0; i < aiMesh->mNumFaces; i++) 
         {
             const aiFace& face = aiMesh->mFaces[i];
-            for (unsigned int j = 0; j < face.mNumIndices; j++) 
+            for (uint32_t j = 0; j < face.mNumIndices; j++) 
             {
                 mesh->indices.push_back(face.mIndices[j]);
             }
@@ -211,28 +186,4 @@ bool ResourceManager::loadMeshFromFile(const std::string& path, MeshData* mesh)
     return true;
 }
 
-bool ResourceManager::loadShaderFromFiles(const std::string& vertexPath, const std::string& fragmentPath, ShaderData* shader)
-{
-    std::ifstream vertexShaderFile(vertexPath);
-    if (!vertexShaderFile.is_open()) 
-    {
-        std::cerr << "Failed to open vertex shader file: " << vertexPath << "\n";
-        return false;
-    }
-    std::string vertexShaderCode((std::istreambuf_iterator<char>(vertexShaderFile)), std::istreambuf_iterator<char>());
-    vertexShaderFile.close();
-
-    std::ifstream fragmentShaderFile(fragmentPath);
-    if (!fragmentShaderFile.is_open()) 
-    {
-        std::cerr << "Failed to open fragment shader file: " << fragmentPath << "\n";
-        return false;
-    }
-    std::string fragmentShaderCode((std::istreambuf_iterator<char>(fragmentShaderFile)), std::istreambuf_iterator<char>());
-    fragmentShaderFile.close();
-
-    shader->vertexCode = vertexShaderCode;
-    shader->fragmentCode = fragmentShaderCode;
-
-    return true;
 }

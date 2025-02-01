@@ -1,9 +1,10 @@
-#ifndef SCENE_H
-#define SCENE_H
+#pragma once
 
+#include <string>
 #include <entt/entity/registry.hpp>
-
 #include "components.h"
+
+namespace Engine {
 
 class Scene 
 {
@@ -25,10 +26,11 @@ public:
                 return entity;
             }
         }
-        return entt::null; // Return null entity if not found
+        return entt::null;
     }
 
-    entt::entity getActiveCamera() const {
+    entt::entity getActiveCamera() const 
+    {
         auto view = m_registry.view<CameraComponent>();
         for(auto entity : view) 
         {
@@ -44,4 +46,4 @@ private:
     entt::registry m_registry;
 };
 
-#endif // SCENE_H
+}

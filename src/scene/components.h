@@ -1,16 +1,15 @@
-#ifndef COMPONENTS_H
-#define COMPONENTS_H
+#pragma once
 
-#include "renderer/material.h"
-#include "renderer/mesh.h"
 #include <memory>
-
+#include <string>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include "core/resources.h"
+
+namespace Engine {
 
 struct Renderable {};
 struct LightSource {};
@@ -30,12 +29,12 @@ struct TransformComponent
 
 struct MeshRendererComponent 
 {
-    std::shared_ptr<Mesh> mesh;
+    std::shared_ptr<MeshData> meshData;
     std::shared_ptr<Material> material;
     bool castShadows = true;
 };
 
-enum class LightType : std::uint8_t
+enum class LightType : uint8_t
 {
     POINT,
     DIRECTIONAL
@@ -58,4 +57,4 @@ struct CameraComponent
     bool active = false;
 };
 
-#endif // COMPONENTS_H
+}  

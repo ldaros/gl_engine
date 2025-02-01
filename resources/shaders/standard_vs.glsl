@@ -1,4 +1,4 @@
-#version 410 core
+#version 450 core
 
 // Input attributes
 layout(location = 0) in vec3 vertexPosition;
@@ -13,10 +13,8 @@ out VS_OUT
 	vec3 Position_worldspace;
 	vec3 Normal_cameraspace;
 	vec3 EyeDirection_cameraspace;
-	vec3 LightDirection_cameraspace;
 	vec3 Tangent_cameraspace;
 	vec3 Bitangent_cameraspace;
-	vec4 Position_lightspace;
 } vs_out;
 
 // Uniforms
@@ -24,8 +22,6 @@ uniform mat4 modelViewProjection;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 uniform mat3 normalMatrix;
-uniform vec3 lightPosition;
-uniform mat4 lightSpaceMatrix;
 
 void main()
 {
@@ -37,14 +33,9 @@ void main()
 	vec3 vertexPosition_cameraspace = (viewMatrix * modelMatrix * vertexPos4).xyz;
 	vs_out.EyeDirection_cameraspace = -vertexPosition_cameraspace;
 
-	vec3 lightPosition_cameraspace = (viewMatrix * vec4(lightPosition, 1.0)).xyz;
-	vs_out.LightDirection_cameraspace = lightPosition_cameraspace + vs_out.EyeDirection_cameraspace;
-
-    vs_out.Normal_cameraspace = normalize(normalMatrix * vertexNormal);
-    vs_out.Tangent_cameraspace = normalize(normalMatrix * vertexTangent);
-    vs_out.Bitangent_cameraspace = normalize(normalMatrix * vertexBitangent);
-
-	vs_out.Position_lightspace = lightSpaceMatrix * modelMatrix * vec4(vertexPosition, 1.0);
+	vs_out.Normal_cameraspace = normalize(normalMatrix * vertexNormal);
+	vs_out.Tangent_cameraspace = normalize(normalMatrix * vertexTangent);
+	vs_out.Bitangent_cameraspace = normalize(normalMatrix * vertexBitangent);
 
 	vs_out.UV = vertexUV;
 }

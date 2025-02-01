@@ -2,7 +2,9 @@
 
 #include <iostream>
 
-Window::Window(int width, int height, const char* title)
+namespace Engine {
+
+Window::Window(uint32_t width, uint32_t height, const std::string& title)
 {
     // Initialize GLFW
     if (!glfwInit())
@@ -14,15 +16,15 @@ Window::Window(int width, int height, const char* title)
     // Set GLFW error callback
     glfwSetErrorCallback(errorCallback);
 
-    // Set OpenGL version and profile (4.1 core profile)
+    // Set OpenGL version and profile (4.5 core profile)
     glfwWindowHint(GLFW_SAMPLES, 4); // 4x MSAA
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // OpenGL 4.1
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1); // OpenGL 4.1
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // OpenGL 4.5
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5); // OpenGL 4.5
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Enable forward compatibility
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Use core profile
 
     // Create window
-    m_window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    m_window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
     if (!m_window)
     {
         std::cerr << "Failed to create GLFW window" << std::endl;
@@ -40,27 +42,29 @@ Window::~Window()
     glfwTerminate();
 }
 
-GLFWwindow* Window::getHandle() 
+GLFWwindow* Window::getHandle() const
 {
     return m_window;
 }
 
-bool Window::shouldClose()
+bool Window::shouldClose() const
 {
     return glfwWindowShouldClose(m_window);
 }
 
-void Window::swapBuffers()
+void Window::swapBuffers() const
 {
     glfwSwapBuffers(m_window);
 }
 
-void Window::getFramebufferSize(int& width, int& height)
+std::pair<uint32_t, uint32_t> Window::getFramebufferSize() const
 {
+    int width, height;
     glfwGetFramebufferSize(m_window, &width, &height);
+    return { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 }
 
-void Window::pollEvents()
+void Window::pollEvents() const
 {
     glfwPollEvents();
 }
@@ -70,3 +74,4 @@ void Window::errorCallback(int error, const char* description)
     std::cerr << "GLFW Error " << error << ": " << description << std::endl;
 }
 
+}

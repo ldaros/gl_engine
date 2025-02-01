@@ -1,9 +1,11 @@
 #include "core/application.h"
 
-int main() {
-    Application app;
+int main() 
+{
+    Engine::Application app;
     
-    if (!app.initialize(1920, 1080, "OG Engine")) {
+    if (!app.initialize(1920, 1080, "OG Engine")) 
+    {
         return EXIT_FAILURE;
     }
     

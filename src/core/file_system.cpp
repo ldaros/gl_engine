@@ -4,6 +4,8 @@
 #include <iostream>
 #include <sstream>
 
+namespace Engine {
+
 FileSystem::FileSystem() {}
 
 FileSystem::~FileSystem() {}
@@ -26,4 +28,6 @@ std::string FileSystem::read(const std::string &filename)
     }
 
     return fileStream.str();
+}
+
 }

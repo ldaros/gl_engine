@@ -1,25 +1,18 @@
-#ifndef UI_MANAGER_H
-#define UI_MANAGER_H
+#pragma once
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
+#include "core/window.h"
 #include "scene/scene.h"
+
+namespace Engine {
 
 class UIManager 
 {
 public:
-    void initialize(GLFWwindow* window);
+    void initialize(Window& window);
     void cleanup();
-    void render(Scene& scene);
-    void newFrame();
     
-private:
-    void renderPerformanceOverlay();
-    void renderEntityInfo(Scene& scene);
-    void renderFrame();
-
-    entt::entity m_selectedEntity = entt::null;
+    void startFrame();
+    void endFrame();
 };
 
-#endif // UI_MANAGER_H
+}

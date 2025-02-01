@@ -1,4 +1,21 @@
-#version 410 core
+#version 450 core
+
+#define MAX_LIGHTS 10
+#define POINT_LIGHT 0
+#define DIRECTIONAL_LIGHT 1
+
+struct Light
+{
+    vec4 position;
+    vec4 direction;
+    vec4 color;
+    vec4 power_type;
+};
+
+layout(std140, binding = 0) uniform LightsUBO
+{
+    Light lights[MAX_LIGHTS];
+};
 
 // Input/Output
 in VS_OUT
@@ -7,10 +24,8 @@ in VS_OUT
     vec3 Position_worldspace;
     vec3 Normal_cameraspace;
     vec3 EyeDirection_cameraspace;
-    vec3 LightDirection_cameraspace;
     vec3 Tangent_cameraspace;
     vec3 Bitangent_cameraspace;
-    vec4 Position_lightspace;
 } fs_in;
 
 out vec4 FragColor;
@@ -18,98 +33,82 @@ out vec4 FragColor;
 // Uniforms
 uniform sampler2D textureDiffuse;
 uniform sampler2D textureNormal;
-uniform sampler2D shadowMap;
-uniform bool useNormalMap = false;
+uniform mat4 viewMatrix;
 
-uniform vec3 lightColor = vec3(1.0);
-uniform float lightPower = 50.0;
 uniform vec3 materialAmbient = vec3(0.1);
 uniform vec3 materialSpecular = vec3(0.3);
 uniform float shininess = 32.0;
 uniform float opacity = 1.0;
-uniform bool isDirectionalLight = false;
+uniform int activeLights = 0;
 
-float calculateShadow()
-{
-    if (!isDirectionalLight) return 0.0;
+vec3 calculateLightContribution(Light light, vec3 diffuseColor, vec3 normal)
+{   
+    vec3 lightColor = light.color.xyz;
+    float lightPower = light.power_type.x;
+    int lightType = int(light.power_type.y);
 
-    vec3 projCoords = fs_in.Position_lightspace.xyz / fs_in.Position_lightspace.w;
-    projCoords = projCoords * 0.5 + 0.5;
+    // Calculate light direction in camera space
+    vec3 lightDir;
+    vec3 lightPosition_cameraspace;
     
-    float closestDepth = texture(shadowMap, projCoords.xy).r;
-    float currentDepth = projCoords.z;
-    
-    vec3 normal = normalize(fs_in.Normal_cameraspace);
-    vec3 lightDir = normalize(fs_in.LightDirection_cameraspace);
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
-    
-    float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-    for(int x = -1; x <= 1; ++x)
+    if(lightType == POINT_LIGHT)
     {
-        for(int y = -1; y <= 1; ++y)
-        {
-            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
-        }
+        lightPosition_cameraspace = (viewMatrix * light.position).xyz;
+        lightDir = normalize(lightPosition_cameraspace + fs_in.EyeDirection_cameraspace);
+    } 
+    else
+    {
+        lightDir = normalize((viewMatrix * light.direction).xyz);
     }
-    shadow /= 9.0;
-    
-    if(projCoords.z > 1.0)
-        shadow = 0.0;
-        
-    return shadow;
-}
 
-vec3 calculateLighting(vec3 diffuseColor, vec3 normal)
-{
-    // Normalize vectors
-    vec3 N = normalize(normal);
-    vec3 L = normalize(fs_in.LightDirection_cameraspace);
-    vec3 E = normalize(fs_in.EyeDirection_cameraspace);
-    vec3 R = reflect(-L, N);
-
-    // Calculate light attenuation
+    // Calculate attenuation
     float attenuation = 1.0;
-    if (!isDirectionalLight)
+    if(lightType == POINT_LIGHT)
     {
-        // Only calculate distance attenuation for point lights
-        float distance = length(fs_in.LightDirection_cameraspace);
+        float distance = length(light.position.xyz - fs_in.Position_worldspace);
         attenuation = 1.0 / (distance * distance);
     }
 
-    // Calculate lighting components
-    vec3 ambient = materialAmbient * diffuseColor;
-    vec3 diffuse = diffuseColor * lightColor * lightPower * max(dot(N, L), 0.0) * attenuation;
-    vec3 specular = materialSpecular * lightColor * lightPower * pow(max(dot(E, R), 0.0), shininess) * attenuation;
+    // Lighting calculations
+    vec3 N = normalize(normal);
+    vec3 L = normalize(lightDir);
+    vec3 E = normalize(fs_in.EyeDirection_cameraspace);
+    vec3 R = reflect(-L, N);
 
-    float shadow = calculateShadow();
-    return ambient + (1.0 - shadow) * (diffuse + specular);
+    // Diffuse component
+    float diff = max(dot(N, L), 0.0);
+    vec3 diffuse = lightColor * lightPower * diff * diffuseColor * attenuation;
+
+    // Specular component
+    float spec = pow(max(dot(E, R), 0.0), shininess);
+    vec3 specular = lightColor * lightPower * spec * materialSpecular * attenuation;
+
+    return 1.0 * (diffuse + specular);
 }
 
 void main()
 {
     vec3 diffuseColor = texture(textureDiffuse, fs_in.UV).rgb;
 
-    // Determine wich normal to use
-    vec3 normal;
+    // Normal calculation
+    vec3 normalMapColor = texture(textureNormal, fs_in.UV).rgb;
+    vec3 TBNNormal = normalize(normalMapColor * 2.0 - 1.0);
+    mat3 TBN = mat3(
+        normalize(fs_in.Tangent_cameraspace),
+        normalize(fs_in.Bitangent_cameraspace),
+        normalize(fs_in.Normal_cameraspace)
+    );
+    vec3 normal = normalize(TBN * TBNNormal);
 
-    if (useNormalMap)
+    // Ambient component
+    vec3 result = materialAmbient * diffuseColor;
+
+    // Accumulate light contributions
+    int numLights = min(activeLights, MAX_LIGHTS);
+    for(int i = 0; i < numLights; i++) 
     {
-        // Sample and process normal map
-        vec3 normalMapColor = texture(textureNormal, fs_in.UV).rgb;
-        vec3 TBNNormal = normalize(normalMapColor * 2.0 - 1.0);
-        
-        // Construct TBN matrix and transform normal
-        mat3 TBN = mat3(fs_in.Tangent_cameraspace, 
-                        fs_in.Bitangent_cameraspace, 
-                        fs_in.Normal_cameraspace);
-        normal = normalize(TBN * TBNNormal);
-    } else {
-        // Use the interpolated vertex normal
-        normal = normalize(fs_in.Normal_cameraspace);
+        result += calculateLightContribution(lights[i], diffuseColor, normal);
     }
 
-    vec3 litColor = calculateLighting(diffuseColor, normal);
-    FragColor = vec4(litColor, opacity);
+    FragColor = vec4(result, opacity);
 }

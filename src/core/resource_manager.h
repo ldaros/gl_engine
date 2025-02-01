@@ -1,42 +1,13 @@
-#ifndef RESOURCE_MANAGER_H
-#define RESOURCE_MANAGER_H
- 
-#include <string>
+#pragma once
+
 #include <map>
+#include <string>
 #include <memory>
-#include <vector>
-#include <glm/glm.hpp>
 
-struct Texture 
-{
-    std::vector<unsigned char> pixels;
-    int width;
-    int height;
-    int channels;
-    unsigned int glTextureId{0};
+#include "uuid.h"
+#include "resources.h"
 
-    bool hasAlpha() const { return channels == 4; }
-    size_t getSizeInBytes() const { return pixels.size(); }
-    bool isEmpty() const { return pixels.empty(); }
-    bool isValid() const { return glTextureId != 0; }
-};
-
-struct MeshData
-{
-    std::vector<glm::vec3> vertices;
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec3> tangents;
-    std::vector<glm::vec3> bitangents;
-    std::vector<glm::vec2> uvs;
-    std::vector<unsigned int> indices;
-};
-
-struct ShaderData 
-{
-    std::string vertexCode;
-    std::string fragmentCode;
-    unsigned int programId{0};
-};
+namespace Engine {
 
 class ResourceManager
 {
@@ -47,9 +18,8 @@ public:
         return instance;
     }
 
-    std::shared_ptr<Texture> loadTexture(const std::string& path);
+    std::shared_ptr<Image> loadTexture(const std::string& path);
     std::shared_ptr<MeshData> loadMesh(const std::string& path);
-    std::shared_ptr<ShaderData> loadShader(const std::string& vertexPath, const std::string& fragmentPath);
 
     void cleanup();
 
@@ -57,13 +27,11 @@ private:
     ResourceManager() = default;
 
     std::string resolvePath(const std::string& path);
-    bool loadTextureFromFile(const std::string& path, Texture* texture);
+    bool loadTextureFromFile(const std::string& path, Image* texture);
     bool loadMeshFromFile(const std::string& path, MeshData* mesh);
-    bool loadShaderFromFiles(const std::string& vertexPath, const std::string& fragmentPath, ShaderData* shader);
 
-    std::map<std::string, std::shared_ptr<Texture>> m_textures;
-    std::map<std::string, std::shared_ptr<MeshData>> m_meshes;
-    std::map<std::string, std::shared_ptr<ShaderData>> m_shaders;
+    std::map<UUID, std::shared_ptr<Image>> m_textures;
+    std::map<UUID, std::shared_ptr<MeshData>> m_meshes;
 };
 
-#endif // RESOURCE_MANAGER_H
+}

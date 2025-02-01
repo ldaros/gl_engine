@@ -1,9 +1,12 @@
-#ifndef INPUT_H
-#define INPUT_H
+#pragma once
 
+#include "window.h"
 #include <GLFW/glfw3.h>
 #include "key_codes.h"
 #include "mouse_codes.h"
+#include "assert.h"
+
+namespace Engine {
 
 struct MousePosition
 {
@@ -14,14 +17,13 @@ struct MousePosition
 class Input
 {
 public:
-    // Initialize input system
-    static void init(GLFWwindow* window);
+    static void init(Window& window);
 
-    static bool isKeyDown(Key::KeyCode key);
-    static bool isKeyReleased(Key::KeyCode key);
+    static bool isKeyDown(Key key);
+    static bool isKeyReleased(Key key);
 
-    static bool isMouseDown(Mouse::MouseCode button);
-    static bool isMouseReleased(Mouse::MouseCode button);
+    static bool isMouseDown(Mouse button);
+    static bool isMouseReleased(Mouse button);
 
     static MousePosition getMousePosition();
 
@@ -32,4 +34,4 @@ private:
     static GLFWwindow* m_window;
 };
 
-#endif // INPUT_H
+}
