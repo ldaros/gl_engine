@@ -18,7 +18,7 @@ using namespace Engine;
 
 const int MAX_LIGHTS = 10;
 
-const Image DEFAULT_TEXTURE = {
+const Image DEFAULT_ALBEDO = {
     .pixels = {245, 245, 245}, 
     .uuid = 0,
     .width = 1, 
@@ -28,6 +28,14 @@ const Image DEFAULT_TEXTURE = {
 
 const Image DEFAULT_NORMAL_MAP = {
     .pixels = {128, 128, 255}, 
+    .uuid = 0,
+    .width = 1,
+    .height = 1,
+    .channels = 3,
+};
+
+const Image DEFAULT_SPECULAR_MAP = {
+    .pixels = {255, 255, 255},
     .uuid = 0,
     .width = 1,
     .height = 1,
@@ -117,7 +125,7 @@ private:
     uint32_t m_activeLights;
 
     ShaderProgram m_standardProgram;
-    Texture m_defaultTexture,  m_defaultNormalMap;
+    Texture m_defaultAlbedo,  m_defaultNormalMap, m_defaultSpecularMap;
 
     std::map<UUID, MeshBuffer> m_meshCache;
     std::map<UUID, Texture> m_textureCache;

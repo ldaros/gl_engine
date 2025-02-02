@@ -29,8 +29,13 @@ struct MeshData
 
 struct Material 
 {
-    std::shared_ptr<Image> diffuseTexture;
-    std::shared_ptr<Image> normalMap;
+    std::shared_ptr<Image> albedo;
+    std::shared_ptr<Image> normal;
+    std::shared_ptr<Image> specular;
+    glm::vec3 ambient = glm::vec3(0.1f);
+    glm::vec3 specularStrength = glm::vec3(0.3f);
+    float shininess = 32.0f;
+    float opacity = 1.0f;
 };
 
 }

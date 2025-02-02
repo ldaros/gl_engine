@@ -81,8 +81,9 @@ bool Renderer::initialize()
 
     // Create default texture
     {   
-        m_defaultTexture = createTexture(DEFAULT_TEXTURE);
-        m_defaultNormalMap = createTexture(DEFAULT_NORMAL_MAP);        
+        m_defaultAlbedo = createTexture(DEFAULT_ALBEDO);
+        m_defaultNormalMap = createTexture(DEFAULT_NORMAL_MAP);
+        m_defaultSpecularMap = createTexture(DEFAULT_SPECULAR_MAP);
     }
 
     return true;
@@ -93,8 +94,9 @@ void Renderer::cleanup()
     deleteShader(m_standardProgram.id);
     deleteUniformBuffer(m_lightsUBO);
 
-    deleteTexture(m_defaultTexture);
+    deleteTexture(m_defaultAlbedo);
     deleteTexture(m_defaultNormalMap);
+    deleteTexture(m_defaultSpecularMap);
 
     for(auto& [uuid, meshBuffer] : m_meshCache)
     {
@@ -161,29 +163,46 @@ void Renderer::render(Window& window, Scene& scene)
         m_standardProgram.setInt("activeLights", m_activeLights);
 
         // Bind textures
-        if(mesh.material->diffuseTexture)
+        if(mesh.material->albedo)
         {
-            ASSERT(m_textureCache.contains(mesh.material->diffuseTexture->uuid), "Failed to find diffuse texture");
-            m_standardProgram.setInt("textureDiffuse", 0);
-            glBindTextureUnit(0, m_textureCache[mesh.material->diffuseTexture->uuid].id);
+            ASSERT(m_textureCache.contains(mesh.material->albedo->uuid), "Failed to find albedo texture");
+            m_standardProgram.setInt("textureAlbedo", 0);
+            glBindTextureUnit(0, m_textureCache[mesh.material->albedo->uuid].id);
         }
         else
         {
-            m_standardProgram.setInt("textureDiffuse", 0);
-            glBindTextureUnit(0, m_defaultTexture.id);
+            m_standardProgram.setInt("textureAlbedo", 0);
+            glBindTextureUnit(0, m_defaultAlbedo.id);
         }
 
-        if (mesh.material->normalMap)
+        if (mesh.material->normal)
         {
-            ASSERT(m_textureCache.contains(mesh.material->normalMap->uuid), "Failed to find normal map texture");
+            ASSERT(m_textureCache.contains(mesh.material->normal->uuid), "Failed to find normal map texture");
             m_standardProgram.setInt("textureNormal", 1);
-            glBindTextureUnit(1, m_textureCache[mesh.material->normalMap->uuid].id);
+            glBindTextureUnit(1, m_textureCache[mesh.material->normal->uuid].id);
         } 
         else
         {
             m_standardProgram.setInt("textureNormal", 1);
             glBindTextureUnit(1, m_defaultNormalMap.id);
         }
+
+        if (mesh.material->specular)
+        {
+            ASSERT(m_textureCache.contains(mesh.material->specular->uuid), "Failed to find specular map texture");
+            m_standardProgram.setInt("textureSpecular", 2);
+            glBindTextureUnit(2, m_textureCache[mesh.material->specular->uuid].id);
+        } 
+        else
+        {
+            m_standardProgram.setInt("textureSpecular", 2);
+            glBindTextureUnit(2, m_defaultSpecularMap.id);
+        }
+
+        m_standardProgram.setVec3("materialAmbient", mesh.material->ambient);
+        m_standardProgram.setVec3("specularStrength", mesh.material->specularStrength);
+        m_standardProgram.setFloat("shininess", mesh.material->shininess);
+        m_standardProgram.setFloat("opacity", mesh.material->opacity);
 
         // Bind mesh buffer
         ASSERT(m_meshCache.contains(mesh.meshData->uuid), "Failed to find mesh buffer");
@@ -212,8 +231,9 @@ void Renderer::allocateResources(entt::registry& registry)
     {
         if(!mesh.material) continue;
 
-        allocateResource(mesh.material->diffuseTexture, m_textureCache, &Renderer::createTexture);
-        allocateResource(mesh.material->normalMap, m_textureCache, &Renderer::createTexture);
+        allocateResource(mesh.material->albedo, m_textureCache, &Renderer::createTexture);
+        allocateResource(mesh.material->normal, m_textureCache, &Renderer::createTexture);
+        allocateResource(mesh.material->specular, m_textureCache, &Renderer::createTexture);
         allocateResource(mesh.meshData, m_meshCache, &Renderer::createMeshBuffer);
     };
 }

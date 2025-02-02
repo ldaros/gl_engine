@@ -44,15 +44,15 @@ bool Application::initialize(int width, int height, const char* title)
     std::shared_ptr<MeshData> teapotMesh = resourceManager.loadMesh("resources/assets/teapot.fbx");
     ASSERT(teapotMesh, "Failed to load mesh");
 
-    auto diffuseTexture = resourceManager.loadTexture("resources/textures/default.png");
-    ASSERT(diffuseTexture, "Failed to load diffuse texture");
+    auto albedoTexture = resourceManager.loadTexture("resources/textures/default.png");
+    ASSERT(albedoTexture, "Failed to load albedo texture");
 
     auto normalMap = resourceManager.loadTexture("resources/textures/normal.png");
     ASSERT(normalMap, "Failed to load normal map");
 
     auto material = std::make_shared<Material>();
-    material->diffuseTexture = diffuseTexture;
-    // material->normalMap = normalMap;
+    material->albedo = albedoTexture;
+    // material->normal = normalMap;
 
     // create entities
     entt::registry& registry = m_scene->getRegistry();

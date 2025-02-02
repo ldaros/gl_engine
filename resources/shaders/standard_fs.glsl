@@ -16,6 +16,7 @@ layout(std140, binding = 0) uniform LightsUBO
 {
     Light lights[MAX_LIGHTS];
 };
+uniform int activeLights = 0;
 
 // Input/Output
 in VS_OUT
@@ -31,17 +32,17 @@ in VS_OUT
 out vec4 FragColor;
 
 // Uniforms
-uniform sampler2D textureDiffuse;
-uniform sampler2D textureNormal;
 uniform mat4 viewMatrix;
 
-uniform vec3 materialAmbient = vec3(0.1);
-uniform vec3 materialSpecular = vec3(0.3);
-uniform float shininess = 32.0;
-uniform float opacity = 1.0;
-uniform int activeLights = 0;
+uniform sampler2D textureAlbedo;
+uniform sampler2D textureNormal;
+uniform sampler2D textureSpecular;
+uniform vec3 materialAmbient;
+uniform vec3 specularStrength;
+uniform float shininess;
+uniform float opacity;
 
-vec3 calculateLightContribution(Light light, vec3 diffuseColor, vec3 normal)
+vec3 calculateLightContribution(Light light, vec3 diffuseColor, vec3 normal, vec3 specularColor)
 {   
     vec3 lightColor = light.color.xyz;
     float lightPower = light.power_type.x;
@@ -81,14 +82,15 @@ vec3 calculateLightContribution(Light light, vec3 diffuseColor, vec3 normal)
 
     // Specular component
     float spec = pow(max(dot(E, R), 0.0), shininess);
-    vec3 specular = lightColor * lightPower * spec * materialSpecular * attenuation;
+    vec3 specular = lightColor * lightPower * spec * specularColor * attenuation;
 
     return 1.0 * (diffuse + specular);
 }
 
 void main()
 {
-    vec3 diffuseColor = texture(textureDiffuse, fs_in.UV).rgb;
+    vec3 diffuseColor = texture(textureAlbedo, fs_in.UV).rgb;
+    vec3 specularColor = texture(textureSpecular, fs_in.UV).rgb * specularStrength;
 
     // Normal calculation
     vec3 normalMapColor = texture(textureNormal, fs_in.UV).rgb;
@@ -107,7 +109,7 @@ void main()
     int numLights = min(activeLights, MAX_LIGHTS);
     for(int i = 0; i < numLights; i++) 
     {
-        result += calculateLightContribution(lights[i], diffuseColor, normal);
+        result += calculateLightContribution(lights[i], diffuseColor, normal, specularColor);
     }
 
     FragColor = vec4(result, opacity);
