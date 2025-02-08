@@ -21,7 +21,7 @@ def get_args():
         "--configuration",
         help="The build configuration (default: Release)",
         default=CONFIGURATION,
-        choices=["Debug", "Release"],
+        choices=["Debug", "Release", "RelWithDebInfo"],
     )
     parser.add_argument(
         "--clean",
