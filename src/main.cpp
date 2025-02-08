@@ -8,7 +8,11 @@ int main()
     {
         return EXIT_FAILURE;
     }
-    
+    if (!app.loadScene("resources/scenes/test_scene.json")) 
+    {
+        return EXIT_FAILURE;
+    }
+
     app.run();
     app.cleanup();
     

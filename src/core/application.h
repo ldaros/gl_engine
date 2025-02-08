@@ -18,6 +18,7 @@ public:
     ~Application();
 
     bool initialize(int width, int height, const char* title);
+    bool loadScene(const std::string& path);
     void run();
     void cleanup();
 

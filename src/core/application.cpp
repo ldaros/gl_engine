@@ -37,88 +37,12 @@ bool Application::initialize(int width, int height, const char* title)
 
     Input::init(*m_window);
 
-    std::shared_ptr<MeshData> shadowTestMesh = m_resourceManager->loadMesh("resources/assets/shadow_test.fbx");
-    ASSERT(shadowTestMesh, "Failed to load mesh");
-
-    std::shared_ptr<MeshData> teapotMesh = m_resourceManager->loadMesh("resources/assets/teapot.fbx");
-    ASSERT(teapotMesh, "Failed to load mesh");
-
-    auto defaultMaterial = m_resourceManager->loadMaterial("resources/materials/default.json");
-    ASSERT(defaultMaterial, "Failed to load material");
-
-    // create entities
-    entt::registry& registry = m_scene->getRegistry();
-
-    entt::entity meshEntity = registry.create();
-    registry.emplace<NameComponent>(meshEntity, "ShadowTestMesh");
-    registry.emplace<MeshRendererComponent>(
-        meshEntity,
-        MeshRendererComponent{
-            .meshData = shadowTestMesh,
-            .material = defaultMaterial,
-        }
-    );
-    registry.emplace<TransformComponent>(
-        meshEntity,
-        TransformComponent{
-            .rotation = glm::vec3(0.0f, 0.0f, 0.0f),
-            .position = glm::vec3(0.0f, 0.0f, 0.0f),
-            .scale = glm::vec3(0.1f)
-        }
-    );
-
-    entt::entity meshEntity2 = registry.create();
-    registry.emplace<NameComponent>(meshEntity2, "TeapotMesh");
-    registry.emplace<MeshRendererComponent>(
-        meshEntity2,
-        MeshRendererComponent{
-            .meshData = teapotMesh,
-            .material = defaultMaterial,
-        }
-    );
-    registry.emplace<TransformComponent>(
-        meshEntity2,
-        TransformComponent{
-            .rotation = glm::vec3(0.0f),
-            .position = glm::vec3(0.2f, 0.2f, 0.5f),
-            .scale = glm::vec3(0.05f)
-        }
-    );
-
-    entt::entity cameraEntity = registry.create();
-    registry.emplace<NameComponent>(cameraEntity, "MainCamera");
-    registry.emplace<CameraComponent>(
-        cameraEntity,
-        CameraComponent{
-            .fov = 45.0f,
-            .nearClip = 0.1f,
-            .farClip = 1000.0f,
-            .active = true
-        }
-    );
-    registry.emplace<TransformComponent>(
-        cameraEntity,
-        TransformComponent{
-            .rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f),
-            .position = glm::vec3(0.0f, 1.0f, 5.0f),
-            .scale = glm::vec3(1.0f)
-        }
-    );
-
-    entt::entity lightEntity = registry.create();
-    registry.emplace<NameComponent>(lightEntity, "DirectionalLight");
-    registry.emplace<LightComponent>(
-        lightEntity,
-        LightComponent{
-            .position = glm::vec3(0.0f, 3.0f, 5.0f),
-            .direction = glm::vec3(0.5f, -0.5f, -1.0f),
-            .color = glm::vec3(1.0f),
-            .power = 1.0f,
-            .type = LightType::DIRECTIONAL
-        }
-    );
-
     return true;
+}
+
+bool Application::loadScene(const std::string& path)
+{
+    return m_scene->loadScene(path, *m_resourceManager);
 }
 
 void Application::run() 

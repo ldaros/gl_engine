@@ -59,4 +59,14 @@ glm::vec3 JsonUtils::parseVec3(const nlohmann::json& obj)
     };
 }
 
+glm::quat JsonUtils::parseQuat(const nlohmann::json& obj)
+{
+    return {
+        obj.at("x").get<float>(),
+        obj.at("y").get<float>(),
+        obj.at("z").get<float>(),
+        obj.at("w").get<float>()
+    };
+}
+
 }

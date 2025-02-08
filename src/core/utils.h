@@ -33,6 +33,7 @@ class JsonUtils
 {
 public:
     static glm::vec3 parseVec3(const nlohmann::json& obj);
+    static glm::quat parseQuat(const nlohmann::json& obj);
 };
 
 }

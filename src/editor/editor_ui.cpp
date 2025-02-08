@@ -187,8 +187,8 @@ void EditorUI::renderEntityDetails(Engine::Scene& scene)
             {
                 if (ImGui::CollapsingHeader("Light")) 
                 {
-                    ImGui::DragFloat3("Position", &light->position[0], 0.1f);
-                    ImGui::DragFloat3("Direction", &light->direction[0], 0.1f);
+                    ImGui::DragFloat3("LightPosition", &light->position[0], 0.1f);
+                    ImGui::DragFloat3("LightDirection", &light->direction[0], 0.1f);
                     ImGui::ColorEdit3("Color", &light->color[0]);
                     ImGui::DragFloat("Intensity", &light->power, 0.1f, 0.0f, 100.0f);
                     

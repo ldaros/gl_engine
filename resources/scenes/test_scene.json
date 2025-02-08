@@ -1,0 +1,83 @@
+{
+    "entities": [
+        {
+            "name": "MainCamera",
+            "components": [
+                {
+                    "type": "Transform",
+                    "data": {
+                        "position": { "x": 0.0, "y": 1.0, "z": 5.0 },
+                        "rotation": { "x": 1.0, "y": 0.0, "z": 0.0, "w": 0.0 },
+                        "scale": { "x": 1.0, "y": 1.0, "z": 1.0 }
+                    }
+                },
+                {
+                    "type": "Camera",
+                    "data": {
+                        "fov": 45.0,
+                        "nearClip": 0.1,
+                        "farClip": 1000.0,
+                        "active": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "DirectionalLight",
+            "components": [
+                {
+                    "type": "Light",
+                    "data": {
+                        "position": { "x": 0.0, "y": 3.0, "z": 5.0 },
+                        "direction": { "x": 0.5, "y": -0.5, "z": -1.0 },
+                        "color": { "x": 1.0, "y": 1.0, "z": 1.0 },
+                        "power": 1.0,
+                        "type": 1
+                    }
+                }
+            ]
+        },
+        {
+            "name": "ShadowTestMesh",
+            "components": [
+                {
+                    "type": "Transform",
+                    "data": {
+                        "position": { "x": 0.0, "y": 0.0, "z": 0.0 },
+                        "rotation": { "x": 0.0, "y": 0.0, "z": 0.0, "w": 0.0 },
+                        "scale": { "x": 0.1, "y": 0.1, "z": 0.1 }
+                    }
+                },
+                {
+                    "type": "MeshRenderer",
+                    "data": {
+                        "meshData": "resources/assets/shadow_test.fbx",
+                        "material": "resources/materials/default.json",
+                        "castShadows": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Teapot",
+            "components": [
+                {
+                    "type": "Transform",
+                    "data": {
+                        "position": { "x": 0.2, "y": 0.2, "z": 0.5 },
+                        "rotation": { "x": 0.0, "y": 0.0, "z": 0.0, "w": 0.0 },
+                        "scale": { "x": 0.05, "y": 0.05, "z": 0.05 }
+                    }
+                },
+                {
+                    "type": "MeshRenderer",
+                    "data": {
+                        "meshData": "resources/assets/teapot.fbx",
+                        "material": "resources/materials/default.json",
+                        "castShadows": true
+                    }
+                }
+            ]
+        }
+    ]
+}
