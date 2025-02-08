@@ -50,4 +50,13 @@ int MathUtils::calculateNumberOfMipmaps(int width, int height)
     return levels;
 }
 
+glm::vec3 JsonUtils::parseVec3(const nlohmann::json& obj)
+{
+    return {
+        obj.at("x").get<float>(),
+        obj.at("y").get<float>(),
+        obj.at("z").get<float>()
+    };
+}
+
 }

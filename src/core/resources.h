@@ -36,6 +36,7 @@ struct Material
     glm::vec3 specularStrength = glm::vec3(0.3f);
     float shininess = 32.0f;
     float opacity = 1.0f;
+    UUID uuid;
 };
 
 }

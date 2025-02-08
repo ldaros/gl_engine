@@ -43,15 +43,8 @@ bool Application::initialize(int width, int height, const char* title)
     std::shared_ptr<MeshData> teapotMesh = m_resourceManager->loadMesh("resources/assets/teapot.fbx");
     ASSERT(teapotMesh, "Failed to load mesh");
 
-    auto albedoTexture = m_resourceManager->loadTexture("resources/textures/default.png");
-    ASSERT(albedoTexture, "Failed to load albedo texture");
-
-    auto normalMap = m_resourceManager->loadTexture("resources/textures/normal.png");
-    ASSERT(normalMap, "Failed to load normal map");
-
-    auto material = std::make_shared<Material>();
-    material->albedo = albedoTexture;
-    // material->normal = normalMap;
+    auto defaultMaterial = m_resourceManager->loadMaterial("resources/materials/default.json");
+    ASSERT(defaultMaterial, "Failed to load material");
 
     // create entities
     entt::registry& registry = m_scene->getRegistry();
@@ -62,7 +55,7 @@ bool Application::initialize(int width, int height, const char* title)
         meshEntity,
         MeshRendererComponent{
             .meshData = shadowTestMesh,
-            .material = material,
+            .material = defaultMaterial,
         }
     );
     registry.emplace<TransformComponent>(
@@ -80,7 +73,7 @@ bool Application::initialize(int width, int height, const char* title)
         meshEntity2,
         MeshRendererComponent{
             .meshData = teapotMesh,
-            .material = material,
+            .material = defaultMaterial,
         }
     );
     registry.emplace<TransformComponent>(

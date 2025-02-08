@@ -7,6 +7,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include "scene/components.h"
+#include "nlohmann/json.hpp"
 
 namespace Engine {
 
@@ -25,6 +26,13 @@ public:
     static glm::vec3 up(const TransformComponent& transform);
 
     static int calculateNumberOfMipmaps(int width, int height);
+};
+
+
+class JsonUtils
+{
+public:
+    static glm::vec3 parseVec3(const nlohmann::json& obj);
 };
 
 }

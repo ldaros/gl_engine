@@ -8,8 +8,13 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "stb_image.h"
+#include "nlohmann/json.hpp"
+#include "assert.h"
+#include "utils.h"
 
 namespace Engine {
+
+using json = nlohmann::json;
 
 std::shared_ptr<Image> ResourceManager::loadTexture(const std::string& path)
 {   
@@ -43,10 +48,27 @@ std::shared_ptr<MeshData> ResourceManager::loadMesh(const std::string& path)
     return sharedMesh;
 }
 
+std::shared_ptr<Material> ResourceManager::loadMaterial(const std::string& path)
+{
+    Material material;
+    if (!deserializeMaterial(path, &material)) 
+    {
+        return nullptr;
+    }
+
+    UUID uuid = UUID_generate();
+    material.uuid = uuid;
+
+    std::shared_ptr<Material> sharedMaterial = std::make_shared<Material>(material);
+    m_materials[uuid] = sharedMaterial;
+    return sharedMaterial;
+}
+
 void ResourceManager::cleanup() 
 {
     m_textures.clear();
     m_meshes.clear();
+    m_materials.clear();
 }
 
 bool ResourceManager::loadTextureFromFile(const std::string& path, Image* texture) 
@@ -180,6 +202,92 @@ bool ResourceManager::loadMeshFromFile(const std::string& path, MeshData* mesh)
     else 
     {
         std::cerr << "No meshes found." << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool ResourceManager::deserializeMaterial(const std::string& path, Material* material)
+{
+    ASSERT(material, "Material is null");
+
+    std::ifstream file(path);
+    if (!file.is_open()) 
+    {
+        std::cerr << "Failed to open material file: " << path << std::endl;
+        return false;
+    }
+
+    try 
+    {
+        json j;
+        file >> j;
+
+        if (j.contains("albedo")) 
+        {
+            const auto& albedoPath = j["albedo"].get<std::string>();
+            
+            if (auto texture = loadTexture(albedoPath))
+            {
+                material->albedo = texture;
+            }
+            else 
+            {
+                std::cerr << "Failed to load texture: " << albedoPath << std::endl;
+                return false;
+            }
+        }
+        if (j.contains("normal")) 
+        {
+            const auto& normalPath = j["normal"].get<std::string>();
+
+            if (auto texture = loadTexture(normalPath))
+            {
+                material->normal = texture;
+            }
+            else 
+            {
+                std::cerr << "Failed to load texture: " << normalPath << std::endl;
+                return false;
+            }
+        }
+        if (j.contains("specular")) 
+        {
+            const auto& specularPath = j["specular"].get<std::string>();
+
+            if (auto texture = loadTexture(specularPath))
+            {
+                material->specular = texture;
+            }
+            else 
+            {
+                std::cerr << "Failed to load texture: " << specularPath << std::endl;
+                return false;
+            }
+        }
+
+        if (j.contains("ambient"))
+        {
+            material->ambient = JsonUtils::parseVec3(j["ambient"]);
+        }
+        if (j.contains("specularStrength"))
+        {
+            material->specularStrength = JsonUtils::parseVec3(j["specularStrength"]);
+        }
+        if (j.contains("shininess"))
+        {
+            material->shininess = j["shininess"].get<float>();
+        }
+        if (j.contains("opacity"))
+        {
+            material->opacity = j["opacity"].get<float>();
+        }
+    }
+    catch (json::exception& e) 
+    {
+        std::cerr << "Failed to parse material file: " << path << std::endl;
+        std::cerr << e.what() << std::endl;
         return false;
     }
 
