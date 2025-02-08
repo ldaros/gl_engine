@@ -22,6 +22,7 @@ void UIManager::initialize(Window& window)
     // Configure ImGui IO
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable keyboard controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable docking
 }
 
 void UIManager::startFrame() 

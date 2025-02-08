@@ -86,6 +86,9 @@ bool Renderer::initialize()
         m_defaultSpecularMap = createTexture(DEFAULT_SPECULAR_MAP);
     }
 
+    // Create frame buffer
+    m_frameBuffer = createFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, FrameBufferType::Color);
+    
     return true;
 }
 
@@ -109,9 +112,11 @@ void Renderer::cleanup()
     
     m_meshCache.clear();
     m_textureCache.clear();
+
+    deleteFrameBuffer(m_frameBuffer);
 }
 
-void Renderer::render(Window& window, Scene& scene)
+void Renderer::render(std::pair<uint32_t, uint32_t> framebufferSize, Scene& scene)
 {
     entt::registry& registry = scene.getRegistry();
 
@@ -123,11 +128,12 @@ void Renderer::render(Window& window, Scene& scene)
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_lightsUBO);
 
     // Main Render Pass
-    auto [width, height] = window.getFramebufferSize();
-    if (width == 0 || height == 0) return;
+    glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer.id);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, width, height);
+    auto [width, height] = framebufferSize;
+    if (width == 0 || height == 0) return;
+    
+    glViewport(0, 0, m_frameBuffer.width, m_frameBuffer.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Get active camera
@@ -210,6 +216,10 @@ void Renderer::render(Window& window, Scene& scene)
         glDrawElements(GL_TRIANGLES, m_meshCache[mesh.meshData->uuid].indexCount, GL_UNSIGNED_INT, 0);
     }
 
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, width, height);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     // Cleanup
     {
         glBindVertexArray(0);

@@ -16,7 +16,9 @@ namespace OpenGL
 
 using namespace Engine;
 
-const int MAX_LIGHTS = 10;
+const uint16_t MAX_LIGHTS = 10;
+const uint16_t FRAMEBUFFER_WIDTH = 1920;
+const uint16_t FRAMEBUFFER_HEIGHT = 1080;
 
 const Image DEFAULT_ALBEDO = {
     .pixels = {245, 245, 245}, 
@@ -88,7 +90,8 @@ class Renderer
 public:
     bool initialize();
     void cleanup();
-    void render(Window& window, Scene& scene);
+    void render(std::pair<uint32_t, uint32_t> framebufferSize, Scene& scene);
+    FrameBuffer getFrameBuffer() const { return m_frameBuffer; };
     
 private:
     Texture createTexture(const Image& image);
@@ -126,9 +129,11 @@ private:
 
     ShaderProgram m_standardProgram;
     Texture m_defaultAlbedo,  m_defaultNormalMap, m_defaultSpecularMap;
-
+    
     std::map<UUID, MeshBuffer> m_meshCache;
     std::map<UUID, Texture> m_textureCache;
+
+    FrameBuffer m_frameBuffer;
 };
 
 } // namespace OpenGL
