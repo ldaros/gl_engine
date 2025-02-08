@@ -150,7 +150,7 @@ void Application::run()
 
 void Application::update(float deltaTime) 
 {
-    m_fpsCameraSystem->update(deltaTime, *m_scene);
+    m_fpsCameraSystem->update(*m_scene, deltaTime, m_editorUI->isSceneViewActive());
 }
 
 void Application::render() 

@@ -12,7 +12,7 @@ class FPSCameraSystem
 public:
     FPSCameraSystem();
 
-    void update(float deltaTime, Scene& scene);
+    void update(Scene& scene, float deltaTime, bool active);
 
 private:
     double m_lastMouseX, m_lastMouseY;

@@ -87,6 +87,8 @@ void EditorUI::renderSceneView(uintptr_t fb)
         }
         ImGui::EndChild();
         ImGui::PopStyleColor();
+
+        m_isSceneViewActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
     }
     ImGui::End();
     ImGui::PopStyleVar();

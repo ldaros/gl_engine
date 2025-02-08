@@ -9,8 +9,10 @@ using namespace Engine;
 
 FPSCameraSystem::FPSCameraSystem() {}
 
-void FPSCameraSystem::update(float deltaTime, Scene& scene)
+void FPSCameraSystem::update(Scene& scene, float deltaTime, bool allowMovement)
 {
+    if (!allowMovement) return;
+
     entt::registry& registry = scene.getRegistry();
 
     bool rightMouseButtonCurrentlyPressed = Input::isMouseDown(Mouse::BUTTON_RIGHT);
