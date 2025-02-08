@@ -95,5 +95,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     vendor/assimp/include
     vendor/stb
     vendor/entt/src
+    vendor/nlohmann_json/include
     ${CMAKE_SOURCE_DIR}/src
 )
