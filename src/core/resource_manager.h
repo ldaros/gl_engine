@@ -12,11 +12,7 @@ namespace Engine {
 class ResourceManager
 {
 public:
-    static ResourceManager& getInstance() 
-    {
-        static ResourceManager instance;
-        return instance;
-    }
+    ResourceManager() = default;
 
     std::shared_ptr<Image> loadTexture(const std::string& path);
     std::shared_ptr<MeshData> loadMesh(const std::string& path);
@@ -24,8 +20,6 @@ public:
     void cleanup();
 
 private:
-    ResourceManager() = default;
-
     std::string resolvePath(const std::string& path);
     bool loadTextureFromFile(const std::string& path, Image* texture);
     bool loadMeshFromFile(const std::string& path, MeshData* mesh);

@@ -8,7 +8,6 @@
 #include "input.h"
 #include "assert.h"
 #include "scene/components.h"
-#include "resource_manager.h"
 
 namespace Engine {
 
@@ -34,20 +33,20 @@ bool Application::initialize(int width, int height, const char* title)
     m_fpsCameraSystem = std::make_unique<Editor::FPSCameraSystem>();
     m_editorUI = std::make_unique<Editor::EditorUI>();
 
+    m_resourceManager = std::make_unique<ResourceManager>();
+
     Input::init(*m_window);
 
-    ResourceManager& resourceManager = ResourceManager::getInstance();
-
-    std::shared_ptr<MeshData> shadowTestMesh = resourceManager.loadMesh("resources/assets/shadow_test.fbx");
+    std::shared_ptr<MeshData> shadowTestMesh = m_resourceManager->loadMesh("resources/assets/shadow_test.fbx");
     ASSERT(shadowTestMesh, "Failed to load mesh");
 
-    std::shared_ptr<MeshData> teapotMesh = resourceManager.loadMesh("resources/assets/teapot.fbx");
+    std::shared_ptr<MeshData> teapotMesh = m_resourceManager->loadMesh("resources/assets/teapot.fbx");
     ASSERT(teapotMesh, "Failed to load mesh");
 
-    auto albedoTexture = resourceManager.loadTexture("resources/textures/default.png");
+    auto albedoTexture = m_resourceManager->loadTexture("resources/textures/default.png");
     ASSERT(albedoTexture, "Failed to load albedo texture");
 
-    auto normalMap = resourceManager.loadTexture("resources/textures/normal.png");
+    auto normalMap = m_resourceManager->loadTexture("resources/textures/normal.png");
     ASSERT(normalMap, "Failed to load normal map");
 
     auto material = std::make_shared<Material>();
@@ -167,7 +166,7 @@ void Application::cleanup()
 {
     m_uiManager->cleanup();
     m_renderer->cleanup();
-    ResourceManager::getInstance().cleanup();
+    m_resourceManager->cleanup();
     m_window.reset();
 }
 

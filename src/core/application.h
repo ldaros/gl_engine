@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "window.h"
+#include "resource_manager.h"
 #include "scene/scene.h"
 #include "ui/ui_manager.h"
 #include "renderer/opengl.h"
@@ -29,6 +30,7 @@ private:
     std::unique_ptr<OpenGL::Renderer> m_renderer;
     std::unique_ptr<Scene> m_scene;
     std::unique_ptr<UIManager> m_uiManager;
+    std::unique_ptr<ResourceManager> m_resourceManager;
 
     std::unique_ptr<Editor::FPSCameraSystem> m_fpsCameraSystem;
     std::unique_ptr<Editor::EditorUI> m_editorUI;
