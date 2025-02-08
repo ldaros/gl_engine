@@ -11,6 +11,7 @@ CONFIGURATION = "Release"
 EXE_NAME = "engine"
 CMAKE_GENERATOR = "Visual Studio 17 2022"
 ARCHITECTURE = "x64"
+SCENE_PATH = "resources/scenes/test_scene.json"
 
 
 def get_args():
@@ -38,6 +39,11 @@ def get_args():
         help="Number of threads to use for build (default: number of CPU cores)",
         type=int,
         default=os.cpu_count(),
+    )
+    parser.add_argument(
+        "--scene",
+        help="Path to the scene file to load (default: resources/scenes/test_scene.json)",
+        default=SCENE_PATH,
     )
     return parser.parse_args()
 
@@ -86,7 +92,7 @@ if args.run:
     os.chdir("..")
     if os.path.exists(exe_path):
         print("Running the executable...")
-        subprocess.run([exe_path])
+        subprocess.run([exe_path, "--scene", args.scene], check=True)
     else:
         print(f"Executable not found: {exe_path}")
 
