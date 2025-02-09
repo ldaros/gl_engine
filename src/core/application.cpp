@@ -74,6 +74,7 @@ void Application::render()
     m_renderer->render(m_editorUI->getFramebufferSize(), *m_scene);
     
     m_editorUI->setupDockingSpace();
+    m_editorUI->renderMenuBar();
     m_editorUI->renderSceneView(static_cast<uintptr_t>(m_renderer->getFrameBuffer().colorTexture));
     m_editorUI->renderEntityBrowser(*m_scene);
     m_editorUI->renderEntityDetails(*m_scene);

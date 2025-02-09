@@ -21,6 +21,7 @@ void EditorUI::setupDockingSpace()
     ImGui::SetNextWindowViewport(viewport->ID);
 
     ImGuiWindowFlags dockspaceFlags = 
+        ImGuiWindowFlags_MenuBar |
         ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
         ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | 
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus;
@@ -54,6 +55,22 @@ void EditorUI::setupDockingSpace()
 
     ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
     ImGui::End();
+}
+
+void EditorUI::renderMenuBar()
+{
+    ImGui::BeginMainMenuBar();
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("Exit", "Alt+F4")) 
+            {
+                exit(0);
+            }
+            ImGui::EndMenu();
+        }
+    }    
+    ImGui::EndMainMenuBar();
 }
 
 void EditorUI::renderSceneView(uintptr_t fb)

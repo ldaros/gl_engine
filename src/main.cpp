@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
         }
       }
     
-    if (!app.initialize(1920, 1080, "OG Engine")) 
+    if (!app.initialize(1920, 1080, "gl Engine")) 
     {
         return EXIT_FAILURE;
     }

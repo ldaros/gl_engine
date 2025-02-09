@@ -9,6 +9,7 @@ class EditorUI
 public:
     EditorUI();
 
+    void renderMenuBar();
     void setupDockingSpace();
     void renderSceneView(uintptr_t fb);
     void renderEntityBrowser(Engine::Scene& scene);
