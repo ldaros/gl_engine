@@ -58,22 +58,24 @@ void EditorUI::setupDockingSpace()
 
 void EditorUI::renderSceneView(uintptr_t fb)
 {
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     if (ImGui::Begin("Scene View", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar))
-    {
+    {   
         ImVec2 contentSize = ImGui::GetContentRegionAvail();
         m_framebufferSize = {
             static_cast<uint32_t>(contentSize.x),
             static_cast<uint32_t>(contentSize.y)
         };
-    
+
+        // Set background color to black
         ImGui::Image(
             static_cast<ImTextureID>(fb), 
             contentSize, 
             ImVec2(0, 1), 
             ImVec2(1, 0)
         );
-
+        
         // Performance overlay
         ImGui::SetCursorPos(ImVec2(10, 30));
         ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.0f, 0.0f, 0.0f, 0.35f));
@@ -87,10 +89,11 @@ void EditorUI::renderSceneView(uintptr_t fb)
         }
         ImGui::EndChild();
         ImGui::PopStyleColor();
-
+        
         m_isSceneViewActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
     }
     ImGui::End();
+    ImGui::PopStyleColor();
     ImGui::PopStyleVar();
 }
 

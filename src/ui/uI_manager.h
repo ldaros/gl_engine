@@ -7,12 +7,15 @@ namespace Engine {
 
 class UIManager 
 {
-public:
+    public:
     void initialize(Window& window);
     void cleanup();
     
     void startFrame();
     void endFrame();
+
+private:
+    void SetupImGuiStyle();
 };
 
 }
