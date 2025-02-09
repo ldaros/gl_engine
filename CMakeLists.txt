@@ -75,6 +75,7 @@ add_executable(${PROJECT_NAME}
     ${HEADER_FILES} 
     ${IMGUI_SOURCES} 
     vendor/stb/stb_image.cpp
+    vendor/tinyfiledialogs/tinyfiledialogs.c
 )
 
 # Link libraries
@@ -96,5 +97,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     vendor/stb
     vendor/entt/src
     vendor/nlohmann_json/include
+    vendor/tinyfiledialogs
     ${CMAKE_SOURCE_DIR}/src
 )

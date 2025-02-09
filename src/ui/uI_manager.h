@@ -7,8 +7,8 @@ namespace Engine {
 
 class UIManager 
 {
-    public:
-    void initialize(Window& window);
+public:
+    bool initialize(Window& window);
     void cleanup();
     
     void startFrame();

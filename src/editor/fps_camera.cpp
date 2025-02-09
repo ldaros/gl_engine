@@ -14,6 +14,7 @@ void FPSCameraSystem::update(Scene& scene, float deltaTime, bool allowMovement)
     if (!allowMovement) return;
 
     entt::registry& registry = scene.getRegistry();
+    auto cameraView = registry.view<TransformComponent, ActiveCamera>();
 
     bool rightMouseButtonCurrentlyPressed = Input::isMouseDown(Mouse::BUTTON_RIGHT);
 
@@ -31,42 +32,39 @@ void FPSCameraSystem::update(Scene& scene, float deltaTime, bool allowMovement)
 
     if (m_isRightMouseButtonPressed)
     {
-        auto cameraEntity = scene.getActiveCamera();
-        if (cameraEntity == entt::null)
-        {
-            std::cerr << "MainCamera entity not found!" << std::endl;
-            return;
-        }
+        // get first active camera
+        auto cameraEntity = cameraView.front();
+        if (cameraEntity == entt::null) return;
 
-        auto* cameraTransform = registry.try_get<TransformComponent>(cameraEntity);
+        auto& cameraTransform = registry.get<TransformComponent>(cameraEntity);
 
         // Handle keyboard inputs to move the camera
         float velocity = m_movementSpeed * deltaTime;
-        glm::vec3 position = cameraTransform->position;
+        glm::vec3 position = cameraTransform.position;
 
         if (Input::isKeyDown(Key::W)) 
         {
-            cameraTransform->position += MathUtils::forward(*cameraTransform) * velocity;
+            cameraTransform.position += MathUtils::forward(cameraTransform) * velocity;
         }
         if (Input::isKeyDown(Key::S))
         {
-            cameraTransform->position -= MathUtils::forward(*cameraTransform) * velocity;
+            cameraTransform.position -= MathUtils::forward(cameraTransform) * velocity;
         }
         if (Input::isKeyDown(Key::D))
         {
-            cameraTransform->position += MathUtils::right(*cameraTransform) * velocity;
+            cameraTransform.position += MathUtils::right(cameraTransform) * velocity;
         }
         if (Input::isKeyDown(Key::A))
         {
-            cameraTransform->position -= MathUtils::right(*cameraTransform) * velocity;
+            cameraTransform.position -= MathUtils::right(cameraTransform) * velocity;
         }
         if (Input::isKeyDown(Key::SPACE))
         {
-            cameraTransform->position += MathUtils::up(*cameraTransform) * velocity;
+            cameraTransform.position += MathUtils::up(cameraTransform) * velocity;
         }
         if (Input::isKeyDown(Key::LEFT_SHIFT))
         {
-            cameraTransform->position -= MathUtils::up(*cameraTransform) * velocity;
+            cameraTransform.position -= MathUtils::up(cameraTransform) * velocity;
         }
 
         // Handle mouse movement
@@ -104,7 +102,7 @@ void FPSCameraSystem::update(Scene& scene, float deltaTime, bool allowMovement)
         );
 
         // Combine rotations and set the transform's rotation
-        cameraTransform->rotation = horizontalQuat * verticalQuat;
+        cameraTransform.rotation = horizontalQuat * verticalQuat;
     }
 }
 

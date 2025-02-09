@@ -69,6 +69,11 @@ void Window::pollEvents() const
     glfwPollEvents();
 }
 
+void Window::close()
+{
+    glfwSetWindowShouldClose(m_window, true);
+}
+
 void Window::errorCallback(int error, const char* description)
 {
     std::cerr << "GLFW Error " << error << ": " << description << std::endl;

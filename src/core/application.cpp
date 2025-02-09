@@ -11,81 +11,72 @@
 
 namespace Engine {
 
-Application::Application() {}
-
-Application::~Application() {}
-
 bool Application::initialize(int width, int height, const char* title)
 {
     UUID_init();
 
-    m_window = std::make_unique<Window>(width, height, title);
-    if (!m_window) return false;
-
-    m_renderer = std::make_unique<OpenGL::Renderer>();
-    if (!m_renderer->initialize()) return false;
-
-    m_scene = std::make_unique<Scene>();
-
-    m_uiManager = std::make_unique<UIManager>();
-    m_uiManager->initialize(*m_window);
-
+    m_sdk.window = std::make_unique<Window>(width, height, title);
+    m_sdk.renderer = std::make_unique<OpenGL::Renderer>();
+    m_sdk.scene = std::make_unique<Scene>();
+    m_sdk.uiManager = std::make_unique<UIManager>();
+    m_sdk.resourceManager = std::make_unique<ResourceManager>();
+    
+    if (!m_sdk.renderer->initialize()) return false;
+    if (!m_sdk.uiManager->initialize(*m_sdk.window)) return false;
+    Input::init(*m_sdk.window);
+    
     m_fpsCameraSystem = std::make_unique<Editor::FPSCameraSystem>();
     m_editorUI = std::make_unique<Editor::EditorUI>();
-
-    m_resourceManager = std::make_unique<ResourceManager>();
-
-    Input::init(*m_window);
 
     return true;
 }
 
 bool Application::loadScene(const std::string& path)
 {
-    return m_scene->loadScene(path, *m_resourceManager);
+    return m_sdk.scene->loadScene(path, *m_sdk.resourceManager);
 }
 
 void Application::run() 
 {   
-    while (!m_window->shouldClose()) 
+    while (!m_sdk.window->shouldClose())
     {
         float currentTime = static_cast<float>(glfwGetTime());
         float deltaTime = currentTime - m_lastFrameTime;
         m_lastFrameTime = currentTime;
 
-        m_window->pollEvents();
-        m_uiManager->startFrame();
+        m_sdk.window->pollEvents();
+        m_sdk.uiManager->startFrame();
         
         update(deltaTime);
         render();
 
-        m_uiManager->endFrame();
-        m_window->swapBuffers();
+        m_sdk.uiManager->endFrame();
+        m_sdk.window->swapBuffers();
     }
 }
 
 void Application::update(float deltaTime) 
 {
-    m_fpsCameraSystem->update(*m_scene, deltaTime, m_editorUI->isSceneViewActive());
+    m_fpsCameraSystem->update(*m_sdk.scene, deltaTime, m_editorUI->isSceneViewActive());
 }
 
 void Application::render() 
 {
-    m_renderer->render(m_editorUI->getFramebufferSize(), *m_scene);
+    m_sdk.renderer->render(m_editorUI->getFramebufferSize(), *m_sdk.scene);
     
     m_editorUI->setupDockingSpace();
-    m_editorUI->renderMenuBar();
-    m_editorUI->renderSceneView(static_cast<uintptr_t>(m_renderer->getFrameBuffer().colorTexture));
-    m_editorUI->renderEntityBrowser(*m_scene);
-    m_editorUI->renderEntityDetails(*m_scene);
+    m_editorUI->renderMenuBar(m_sdk);
+    m_editorUI->renderSceneView(static_cast<uintptr_t>(m_sdk.renderer->getFrameBuffer().colorTexture));
+    m_editorUI->renderEntityBrowser(*m_sdk.scene);
+    m_editorUI->renderEntityDetails(*m_sdk.scene);
 }
 
 void Application::cleanup()
 {
-    m_uiManager->cleanup();
-    m_renderer->cleanup();
-    m_resourceManager->cleanup();
-    m_window.reset();
+    m_sdk.uiManager->cleanup();
+    m_sdk.renderer->cleanup();
+    m_sdk.resourceManager->cleanup();
+    m_sdk.window.reset();
 }
 
 }

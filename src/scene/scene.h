@@ -20,32 +20,7 @@ public:
         return m_registry;
     }
 
-    entt::entity findEntityByName(const std::string& name)
-    {
-        auto view = m_registry.view<NameComponent>();
-        for(auto entity : view) 
-        {
-            if(view.get<NameComponent>(entity).name == name) 
-            {
-                return entity;
-            }
-        }
-        return entt::null;
-    }
-
-    entt::entity getActiveCamera() const 
-    {
-        auto view = m_registry.view<CameraComponent>();
-        for(auto entity : view) 
-        {
-            if(view.get<CameraComponent>(entity).active) 
-            {
-                return entity;
-            }
-        }
-        return entt::null;
-    }
-
+    void newScene();
     bool loadScene(const std::string& path, ResourceManager& resourceManager);
 
 private:

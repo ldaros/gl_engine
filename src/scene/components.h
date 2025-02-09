@@ -14,6 +14,7 @@ namespace Engine {
 struct Renderable {};
 struct LightSource {};
 struct PerspectiveCamera {};
+struct ActiveCamera {};
 
 struct NameComponent
 {
@@ -54,7 +55,6 @@ struct CameraComponent
     float fov = 45.0f;
     float nearClip = 0.1f;
     float farClip = 1000.0f;
-    bool active = false;
 };
 
 }  

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "scene/scene.h"
+#include "core/sdk.h"
 
 namespace Editor {
 
@@ -9,8 +9,8 @@ class EditorUI
 public:
     EditorUI();
 
-    void renderMenuBar();
     void setupDockingSpace();
+    void renderMenuBar(Engine::SDK& sdk);
     void renderSceneView(uintptr_t fb);
     void renderEntityBrowser(Engine::Scene& scene);
     void renderEntityDetails(Engine::Scene& scene);

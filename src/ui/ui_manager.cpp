@@ -6,7 +6,7 @@
 
 namespace Engine {
 
-void UIManager::initialize(Window& window)
+bool UIManager::initialize(Window& window)
 {
     // Initialize ImGui
     IMGUI_CHECKVERSION();
@@ -23,6 +23,8 @@ void UIManager::initialize(Window& window)
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable keyboard controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // Enable docking
+
+    return true;
 }
 
 void UIManager::startFrame() 

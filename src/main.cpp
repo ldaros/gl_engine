@@ -29,9 +29,9 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     
-    if (!app.loadScene(scenePath)) 
+    if (!scenePath.empty()) 
     {
-        return EXIT_FAILURE;
+      app.loadScene(scenePath);
     }
 
     app.run();

@@ -16,6 +16,7 @@ public:
     bool shouldClose() const;
     void swapBuffers() const;
     void pollEvents() const;
+    void close();
     
     GLFWwindow* getHandle() const;
     std::pair<uint32_t, uint32_t> getFramebufferSize() const;

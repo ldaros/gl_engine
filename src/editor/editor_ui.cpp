@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include "tinyfiledialogs.h"
 #include "scene/components.h"
 
 namespace Editor {
@@ -57,15 +58,39 @@ void EditorUI::setupDockingSpace()
     ImGui::End();
 }
 
-void EditorUI::renderMenuBar()
+void EditorUI::renderMenuBar(SDK& sdk)
 {
     ImGui::BeginMainMenuBar();
     {
         if (ImGui::BeginMenu("File"))
         {
+            if (ImGui::MenuItem("New Scene")) 
+            {
+                sdk.scene->newScene();
+            }
+
+            if (ImGui::MenuItem("Open Scene"))
+            {
+                // Open file dialog
+                const char* filters[] = { "*.json", "*.scene" }; // Example file filters
+                const char* filename = tinyfd_openFileDialog(
+                    "Open Scene",  // Title
+                    "",            // Default path
+                    2,             // Number of filters
+                    filters,       // Filter array
+                    "Scene Files", // Filter description
+                    0              // Allow multiple selections (0 = no)
+                );
+
+                if (filename != nullptr)
+                {
+                    sdk.scene->loadScene(filename, *sdk.resourceManager);
+                }
+            }
+
             if (ImGui::MenuItem("Exit", "Alt+F4")) 
             {
-                exit(0);
+                sdk.window->close();
             }
             ImGui::EndMenu();
         }
@@ -85,7 +110,6 @@ void EditorUI::renderSceneView(uintptr_t fb)
             static_cast<uint32_t>(contentSize.y)
         };
 
-        // Set background color to black
         ImGui::Image(
             static_cast<ImTextureID>(fb), 
             contentSize, 
@@ -189,7 +213,6 @@ void EditorUI::renderEntityDetails(Engine::Scene& scene)
                     ImGui::DragFloat("FOV", &camera->fov, 0.1f, 1.0f, 180.0f);
                     ImGui::DragFloat("Near Plane", &camera->nearClip, 0.01f, 0.01f, 10.0f);
                     ImGui::DragFloat("Far Plane", &camera->farClip, 1.0f, 10.0f, 10000.0f);
-                    ImGui::Checkbox("Active", &camera->active);
                 }
             }
 

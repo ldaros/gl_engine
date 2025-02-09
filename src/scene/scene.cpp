@@ -9,6 +9,11 @@ namespace Engine {
  
 using json = nlohmann::json;
 
+void Scene::newScene()
+{
+    m_registry.clear();
+}
+
 bool Scene::loadScene(const std::string& path, ResourceManager& resourceManager)
 {
     m_registry.clear();
@@ -55,6 +60,10 @@ bool Scene::loadScene(const std::string& path, ResourceManager& resourceManager)
                 {
                     m_registry.emplace<MeshRendererComponent>(entity, deserializeMeshRenderer(data, resourceManager));
                 }
+                else if (type == "ActiveCamera") 
+                {
+                    m_registry.emplace<ActiveCamera>(entity);
+                }
             }
         }
     }
@@ -85,7 +94,6 @@ CameraComponent Scene::deserializeCamera(const json& obj)
     camera.fov = obj["fov"].get<float>();
     camera.nearClip = obj["nearClip"].get<float>();
     camera.farClip = obj["farClip"].get<float>();
-    camera.active = obj["active"].get<bool>();
 
     return camera;
 }

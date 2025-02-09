@@ -16,9 +16,12 @@
                     "data": {
                         "fov": 45.0,
                         "nearClip": 0.1,
-                        "farClip": 1000.0,
-                        "active": true
+                        "farClip": 1000.0
                     }
+                },
+                {
+                    "type": "ActiveCamera",
+                    "data": {}
                 }
             ]
         },

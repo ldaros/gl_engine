@@ -120,35 +120,52 @@ void Renderer::render(std::pair<uint32_t, uint32_t> framebufferSize, Scene& scen
 {
     entt::registry& registry = scene.getRegistry();
 
-    // Allocate meshes and textures
-    allocateResources(registry);
-
-    // Update lights uniform buffer
-    updateLightsUB(registry);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_lightsUBO);
-
-    // Main Render Pass
-    glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer.id);
-
+    // Get framebuffer size
     auto [width, height] = framebufferSize;
     if (width == 0 || height == 0) return;
     
+    // Allocate meshes and textures
+    allocateResources(registry);
+    
+    // Update lights uniform buffer
+    updateLightsUB(registry);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_lightsUBO);
+    
+    // Main Render Pass
+    glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer.id);
     glViewport(0, 0, m_frameBuffer.width, m_frameBuffer.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    // Default cameara values
+    float fov = glm::radians(60.0f);
+    float nearClip = 0.1f;
+    float farClip = 100.0f;
+    glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 cameraForward = glm::vec3(0.0f, 0.0f, -1.0f); 
+    glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
     // Get active camera
-    entt::entity activeCamera = scene.getActiveCamera();
-    auto [camera, cameraTransform] = registry.try_get<CameraComponent, TransformComponent>(activeCamera);
-    if(!camera || !cameraTransform) return;
-
-    // Camera matrices
-    glm::mat4 projection = glm::perspective(glm::radians(camera->fov), 
-                                          (float)width/height, 
-                                          camera->nearClip, 
-                                          camera->farClip);
-    glm::mat4 view = glm::lookAt(cameraTransform->position, 
-                               cameraTransform->position + MathUtils::forward(*cameraTransform), 
-                               MathUtils::up(*cameraTransform));
+    {
+        auto cameraView = registry.view<CameraComponent, TransformComponent, ActiveCamera>();
+        auto cameraEntity = cameraView.front();
+        if (cameraEntity != entt::null)
+        {
+            auto& cameraTransform = registry.get<TransformComponent>(cameraEntity);
+            auto& camera = registry.get<CameraComponent>(cameraEntity);
+    
+            fov = glm::radians(camera.fov);
+            nearClip = camera.nearClip;
+            farClip = camera.farClip;
+            cameraPosition = cameraTransform.position;
+            cameraForward = MathUtils::forward(cameraTransform);
+            cameraUp = MathUtils::up(cameraTransform);
+        }
+    }
+    
+    // Calculate projection matrix
+    float aspect = (float)width / height;
+    glm::mat4 projection = glm::perspective(fov, aspect, nearClip, farClip);
+    glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition + cameraForward, cameraUp);
 
     // Render all meshes
     auto renderView = registry.view<MeshRendererComponent, TransformComponent>();
@@ -216,9 +233,12 @@ void Renderer::render(std::pair<uint32_t, uint32_t> framebufferSize, Scene& scen
         glDrawElements(GL_TRIANGLES, m_meshCache[mesh.meshData->uuid].indexCount, GL_UNSIGNED_INT, 0);
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, width, height);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // Restore viewport
+    {        
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, width, height);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
     
     // Cleanup
     {
