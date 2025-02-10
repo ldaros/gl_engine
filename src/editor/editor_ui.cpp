@@ -62,17 +62,16 @@ void EditorUI::renderMenuBar(SDK& sdk)
 {
     ImGui::BeginMainMenuBar();
     {
-        if (ImGui::BeginMenu("File"))
+        if (ImGui::BeginMenu("Scene"))
         {
             if (ImGui::MenuItem("New Scene")) 
             {
                 sdk.scene->newScene();
             }
-
+            
             if (ImGui::MenuItem("Open Scene"))
             {
-                // Open file dialog
-                const char* filters[] = { "*.json", "*.scene" }; // Example file filters
+                const char* filters[] = { "*.json", "*.scene" };
                 const char* filename = tinyfd_openFileDialog(
                     "Open Scene",  // Title
                     "",            // Default path
@@ -81,17 +80,22 @@ void EditorUI::renderMenuBar(SDK& sdk)
                     "Scene Files", // Filter description
                     0              // Allow multiple selections (0 = no)
                 );
-
+                
                 if (filename != nullptr)
                 {
                     sdk.scene->loadScene(filename, *sdk.resourceManager);
                 }
-            }
+            }            
+            ImGui::EndMenu();
+        }
 
+        if (ImGui::BeginMenu("Editor"))
+        {
             if (ImGui::MenuItem("Exit", "Alt+F4")) 
             {
                 sdk.window->close();
             }
+
             ImGui::EndMenu();
         }
     }    
