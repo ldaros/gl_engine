@@ -19,6 +19,12 @@ public:
     bool isSceneViewActive() const { return m_isSceneViewActive; }
     
 private:
+    template <typename ComponentType>
+    bool ComponentHeader(entt::registry& registry, entt::entity entity, const char* headerName);
+
+    template <typename ComponentType>
+    void AddComponentMenuItem(entt::registry& registry, entt::entity entity, const char* label);
+
     entt::entity m_selectedEntity = entt::null;
     std::pair<uint32_t, uint32_t> m_framebufferSize { 1920, 1080 };
     bool m_isSceneViewActive = false;

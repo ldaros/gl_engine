@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <typeinfo>
 #include "tinyfiledialogs.h"
 #include "scene/components.h"
 
@@ -167,8 +168,30 @@ void EditorUI::renderEntityBrowser(Engine::Scene& scene)
             if (ImGui::Selectable(displayName.c_str(), m_selectedEntity == entity)) {
                 m_selectedEntity = entity;
             }
+
+            if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+            {
+                ImGui::OpenPopup("EntityOptions");
+            }
+
+            if (ImGui::BeginPopup("EntityOptions"))
+            {
+                if (ImGui::MenuItem("Destroy"))
+                {
+                    registry.destroy(entity);
+                }
+                ImGui::EndPopup();
+            }
             
             ImGui::PopID();
+        }
+
+        ImGui::Separator();
+        if (ImGui::Button("Add Entity"))
+        {
+            entt::entity entity = registry.create();
+            std::string name = "Entity #" + std::to_string(entt::to_integral(entity));
+            registry.emplace_or_replace<NameComponent>(entity, NameComponent{ .name = name });
         }
     }
     ImGui::End();    
@@ -196,10 +219,23 @@ void EditorUI::renderEntityDetails(Engine::Scene& scene)
             ImGui::Text("%s", headerText.c_str());
             ImGui::Separator();
 
+            // Name Component
+            if (auto* name = registry.try_get<NameComponent>(m_selectedEntity))
+            {
+                if (ComponentHeader<NameComponent>(registry, m_selectedEntity, "Name"))
+                {
+                    char buf[256];
+                    strcpy_s(buf, 256, name->name.c_str());
+                    if (ImGui::InputText("Name", buf, 256)) {
+                        name->name = buf;
+                    }
+                }
+            }
+
             // Transform Component
             if (auto* transform = registry.try_get<TransformComponent>(m_selectedEntity)) 
-            {
-                if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) 
+            {               
+                if (ComponentHeader<TransformComponent>(registry, m_selectedEntity, "Transform"))
                 {
                     ImGui::DragFloat3("Position", &transform->position[0], 0.1f);
                     glm::vec3 degrees = glm::degrees(glm::eulerAngles(transform->rotation));
@@ -212,7 +248,7 @@ void EditorUI::renderEntityDetails(Engine::Scene& scene)
             // Camera Component
             if (auto* camera = registry.try_get<CameraComponent>(m_selectedEntity)) 
             {
-                if (ImGui::CollapsingHeader("Camera")) 
+                if (ComponentHeader<CameraComponent>(registry, m_selectedEntity, "Camera"))
                 {
                     ImGui::DragFloat("FOV", &camera->fov, 0.1f, 1.0f, 180.0f);
                     ImGui::DragFloat("Near Plane", &camera->nearClip, 0.01f, 0.01f, 10.0f);
@@ -223,7 +259,7 @@ void EditorUI::renderEntityDetails(Engine::Scene& scene)
             // Mesh Renderer Component
             if (auto* meshRenderer = registry.try_get<MeshRendererComponent>(m_selectedEntity)) 
             {
-                if (ImGui::CollapsingHeader("Mesh Renderer")) 
+                if (ComponentHeader<MeshRendererComponent>(registry, m_selectedEntity, "Mesh Renderer"))
                 {
                     ImGui::Checkbox("Cast Shadows", &meshRenderer->castShadows);
                 }
@@ -232,7 +268,7 @@ void EditorUI::renderEntityDetails(Engine::Scene& scene)
             // Light Component
             if (auto* light = registry.try_get<LightComponent>(m_selectedEntity)) 
             {
-                if (ImGui::CollapsingHeader("Light")) 
+                if (ComponentHeader<LightComponent>(registry, m_selectedEntity, "Light"))
                 {
                     ImGui::DragFloat3("LightPosition", &light->position[0], 0.1f);
                     ImGui::DragFloat3("LightDirection", &light->direction[0], 0.1f);
@@ -254,6 +290,23 @@ void EditorUI::renderEntityDetails(Engine::Scene& scene)
                     }
                 }
             }
+                        
+            // Add Component button and popup
+            ImGui::Separator();
+            if (ImGui::Button("Add Component")) 
+            {
+                ImGui::OpenPopup("AddComponentPopup");
+            }
+
+            if (ImGui::BeginPopup("AddComponentPopup"))
+            {
+                AddComponentMenuItem<TransformComponent>(registry, m_selectedEntity, "Transform");
+                AddComponentMenuItem<CameraComponent>(registry, m_selectedEntity, "Camera");
+                AddComponentMenuItem<MeshRendererComponent>(registry, m_selectedEntity, "Mesh Renderer");
+                AddComponentMenuItem<LightComponent>(registry, m_selectedEntity, "Light");
+                AddComponentMenuItem<ActiveCamera>(registry, m_selectedEntity, "Active Camera");
+                ImGui::EndPopup();
+            }
         }
         else 
         {
@@ -261,6 +314,55 @@ void EditorUI::renderEntityDetails(Engine::Scene& scene)
         }
     }
     ImGui::End();
+}
+
+template <typename ComponentType>
+bool EditorUI::ComponentHeader(entt::registry& registry, entt::entity entity, const char* headerName)
+{
+    if (auto* component = registry.try_get<ComponentType>(entity))
+    
+    // Generate unique ID for component type
+    ImGui::PushID(static_cast<int>(typeid(ComponentType).hash_code()));
+
+    bool componentExists = registry.any_of<ComponentType>(entity);
+    bool headerOpen = false;
+
+    if (componentExists)
+    {
+        if (ImGui::CollapsingHeader(headerName, ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            headerOpen = true;
+
+            // Check for right-click on the header
+            if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+            {
+                ImGui::OpenPopup("ComponentOptions");
+            }
+
+            if (ImGui::BeginPopup("ComponentOptions"))
+            {
+                if (ImGui::MenuItem("Delete"))
+                {
+                    registry.remove<ComponentType>(entity);
+                    headerOpen = false; // Component is removed, header should close
+                }
+                ImGui::EndPopup();
+            }
+        }
+    }
+
+    ImGui::PopID();
+    return headerOpen;
+}
+
+template <typename ComponentType>
+void EditorUI::AddComponentMenuItem(entt::registry& registry, entt::entity entity, const char* label)
+{
+    if (ImGui::MenuItem(label))
+    {
+        registry.emplace_or_replace<ComponentType>(entity);
+        ImGui::CloseCurrentPopup();
+    }
 }
 
 }
