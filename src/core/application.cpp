@@ -28,6 +28,8 @@ bool Application::initialize(int width, int height, const char* title)
     m_fpsCameraSystem = std::make_unique<Editor::FPSCameraSystem>();
     m_editorUI = std::make_unique<Editor::EditorUI>();
 
+    m_sdk.renderer->toggleDebug(true);
+
     return true;
 }
 

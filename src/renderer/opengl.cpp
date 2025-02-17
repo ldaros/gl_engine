@@ -88,6 +88,8 @@ bool Renderer::initialize()
 
     // Create frame buffer
     m_frameBuffer = createFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, FrameBufferType::Color);
+
+    m_debugRenderer.initialize();
     
     return true;
 }
@@ -112,6 +114,7 @@ void Renderer::cleanup()
     
     m_meshCache.clear();
     m_textureCache.clear();
+    m_debugRenderer.cleanup();
 
     deleteFrameBuffer(m_frameBuffer);
 }
@@ -231,6 +234,21 @@ void Renderer::render(std::pair<uint32_t, uint32_t> framebufferSize, Scene& scen
         ASSERT(m_meshCache.contains(mesh.meshData->uuid), "Failed to find mesh buffer");
         glBindVertexArray(m_meshCache[mesh.meshData->uuid].vao);
         glDrawElements(GL_TRIANGLES, m_meshCache[mesh.meshData->uuid].indexCount, GL_UNSIGNED_INT, 0);
+    }
+
+    // Render debug geometry
+    if (m_debugEnabled)
+    {
+        m_debugRenderer.startFrame();
+
+        for(auto [entity, light] : registry.view<LightComponent>().each())
+        {
+            m_debugRenderer.addSphere(light.position, 0.1f * light.power, light.color);
+            // m_debugRenderer.addLine(light.position, light.position + glm::normalize(light.direction), light.color);
+        }
+
+        glm::mat4 viewProjection = projection * view;
+        m_debugRenderer.endFrame(viewProjection);
     }
 
     // Restore viewport
